@@ -75,6 +75,7 @@ def load_critical_documentation(logger=None) -> str:
         logger = setup_hook_logging("startup-eval")
 
     critical_docs = [
+        "README.md",
         ".claude/docs/agent-standards-runtime.md",
         ".claude/docs/guides/agent-selection-guide.md",
         ".claude/docs/guides/file-operation-protocol.md",
