@@ -1,0 +1,251 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "claude-code.schema.json",
+  "version": "2.2.0",
+  "title": "Claude Code Unified Schema",
+  "description": "Consolidated input/output schema for Claude Code agent operations with two-state model",
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "Unique identifier for the task"
+        },
+        "task_type": {
+          "type": "string",
+          "enum": ["agent_config", "command_development", "hook_management", "schema_management", "documentation_update"],
+          "description": "Type of Claude Code task to perform"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of what needs to be accomplished"
+        },
+        "urls": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" },
+          "description": "Specific Claude Code documentation URLs to research"
+        },
+        "target_files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specific files in .claude/** directory to modify (optional)"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Task-specific parameters (agent name, command name, etc.)",
+          "additionalProperties": true
+        },
+        "apply_write": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to apply changes directly (false = prepare only)"
+        },
+        "execution_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Orchestrator-provided execution timestamp in ISO 8601 UTC format"
+        }
+      },
+      "required": ["task_id", "task_type", "description", "execution_timestamp"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "oneOf": [
+        {
+          "title": "Claude Code Success",
+          "properties": {
+            "status": { "const": "SUCCESS" },
+            "agent": { "const": "claude-code" },
+            "task_id": { "type": "string" },
+            "summary": {
+              "type": "string",
+              "description": "1-3 sentence executive summary of work completed"
+            },
+            "validation_checklist": {
+              "type": "object",
+              "properties": {
+                "checks_performed": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "List of Claude Code validation checks performed"
+                },
+                "all_checks_passed": {
+                  "const": true,
+                  "description": "Must be true for SUCCESS status"
+                },
+                "check_details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "check_name": { "type": "string" },
+                      "status": { "const": "passed" },
+                      "evidence": { "type": "string" },
+                      "validation_method": { "enum": ["file_validation", "schema_validation", "integration_test", "documentation_check"] }
+                    },
+                    "required": ["check_name", "status", "evidence", "validation_method"]
+                  }
+                }
+              },
+              "required": ["checks_performed", "all_checks_passed", "check_details"]
+            },
+            "report_path": {
+              "type": "string",
+              "description": "Relative path to detailed report file in .claude/docs/reports/"
+            },
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": { "type": "string" },
+                  "action": { "enum": ["create", "update", "delete"] }
+                },
+                "required": ["path", "action"]
+              }
+            },
+            "recommendations": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "validation_proposal": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Specific validation steps the orchestrator should execute to verify the changes"
+            },
+            "sources": {
+              "type": "array",
+              "items": { "type": "string", "format": "uri" }
+            },
+            "execution_timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Orchestrator-provided execution timestamp in ISO 8601 UTC format"
+            },
+            "timestamp_source": {
+              "const": "orchestrator",
+              "description": "Validates that timestamp came from orchestrator, not sub-agent"
+            }
+          },
+          "required": ["status", "agent", "task_id", "summary", "validation_checklist", "changes", "validation_proposal", "sources", "execution_timestamp", "timestamp_source"],
+          "additionalProperties": false
+        },
+        {
+          "title": "Claude Code Failure",
+          "properties": {
+            "status": { "const": "FAILURE" },
+            "agent": { "const": "claude-code" },
+            "task_id": { "type": "string" },
+            "summary": {
+              "type": "string",
+              "description": "Summary of why Claude Code task failed"
+            },
+            "validation_checklist": {
+              "type": "object",
+              "properties": {
+                "checks_performed": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "List of validation checks attempted"
+                },
+                "all_checks_passed": {
+                  "const": false,
+                  "description": "Must be false for FAILURE status"
+                },
+                "failed_checks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "check_name": { "type": "string" },
+                      "status": { "const": "failed" },
+                      "reason": { "type": "string" },
+                      "evidence": { "type": "string" }
+                    },
+                    "required": ["check_name", "status", "reason"]
+                  },
+                  "minItems": 1
+                },
+                "passed_checks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "check_name": { "type": "string" },
+                      "status": { "const": "passed" },
+                      "evidence": { "type": "string" }
+                    },
+                    "required": ["check_name", "status", "evidence"]
+                  }
+                }
+              },
+              "required": ["checks_performed", "all_checks_passed", "failed_checks"]
+            },
+            "failure_details": {
+              "type": "object",
+              "properties": {
+                "failure_type": {
+                  "enum": ["missing_information", "validation_error", "execution_error", "resource_error", "schema_error", "documentation_error"],
+                  "description": "Primary type of failure"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Specific reasons why the Claude Code task cannot be completed"
+                },
+                "missing": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Specific fields, artifacts, or information needed"
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "error_code": { "type": "string" },
+                      "message": { "type": "string" },
+                      "hint": { "type": "string" },
+                      "context": { "type": "object" }
+                    },
+                    "required": ["error_code", "message", "hint"]
+                  }
+                },
+                "proposed_next_steps": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Actionable next steps to resolve the blockage"
+                },
+                "partial_results": {
+                  "type": "object",
+                  "description": "Any work completed before failure"
+                }
+              },
+              "required": ["failure_type", "reasons", "proposed_next_steps"]
+            },
+            "sources": {
+              "type": "array",
+              "items": { "type": "string", "format": "uri" },
+              "description": "Sources researched before failure"
+            },
+            "execution_timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Orchestrator-provided execution timestamp in ISO 8601 UTC format"
+            },
+            "timestamp_source": {
+              "const": "orchestrator",
+              "description": "Validates that timestamp came from orchestrator, not sub-agent"
+            }
+          },
+          "required": ["status", "agent", "task_id", "summary", "validation_checklist", "failure_details", "execution_timestamp", "timestamp_source"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": ["input", "output"]
+}

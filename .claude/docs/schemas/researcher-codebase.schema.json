@@ -1,0 +1,260 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Researcher Codebase Agent Schema",
+  "description": "Schema for researcher-codebase agent performing focused codebase research and pattern discovery",
+  "version": "1.0.0",
+  "allOf": [
+    {
+      "$ref": "./base-agent.schema.json"
+    }
+  ],
+  "properties": {
+    "output": {
+      "type": "object",
+      "oneOf": [
+        {
+          "title": "Success Output",
+          "properties": {
+            "status": { "const": "SUCCESS" },
+            "agent": { "const": "researcher-codebase" },
+            "agent_specific_output": {
+              "type": "object",
+              "properties": {
+                "findings": {
+                  "type": "object",
+                  "description": "Compressed research findings from codebase analysis",
+                  "properties": {
+                    "key_insights": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "insight": { "type": "string", "description": "Key finding about codebase" },
+                          "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                          "evidence": { "type": "string", "description": "File path and line reference (e.g., src/module/file.py:123)" },
+                          "sources": {
+                            "type": "array",
+                            "items": { "type": "string" },
+                            "description": "Source files for this insight"
+                          }
+                        },
+                        "required": ["insight", "confidence", "evidence"]
+                      }
+                    },
+                    "patterns_discovered": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "pattern": { "type": "string", "description": "Pattern name or description" },
+                          "instances": { "type": "integer", "description": "Number of pattern occurrences" },
+                          "example": { "type": "string", "description": "Representative example with file:line reference" },
+                          "description": { "type": "string", "description": "What the pattern does" }
+                        },
+                        "required": ["pattern", "instances", "example"]
+                      }
+                    },
+                    "architecture": {
+                      "type": "object",
+                      "properties": {
+                        "structure": { "type": "string", "description": "High-level architecture description" },
+                        "key_files": {
+                          "type": "array",
+                          "items": { "type": "string" },
+                          "description": "Critical files in architecture"
+                        },
+                        "dependencies": {
+                          "type": "array",
+                          "items": { "type": "string" },
+                          "description": "Key dependencies identified"
+                        }
+                      },
+                      "required": ["structure", "key_files"]
+                    }
+                  },
+                  "required": ["key_insights", "patterns_discovered"]
+                },
+                "compression_stats": {
+                  "type": "object",
+                  "description": "Compression metrics for research efficiency",
+                  "properties": {
+                    "files_analyzed": { "type": "integer", "description": "Total files examined" },
+                    "lines_reviewed": { "type": "integer", "description": "Total lines of code reviewed" },
+                    "findings_returned": { "type": "integer", "description": "Number of key findings" },
+                    "compression_ratio": { "type": "string", "description": "Compression achieved (e.g., '600:1')" }
+                  },
+                  "required": ["files_analyzed", "findings_returned", "compression_ratio"]
+                },
+                "research_boundaries": {
+                  "type": "object",
+                  "description": "Research scope and termination details",
+                  "properties": {
+                    "termination_reason": {
+                      "type": "string",
+                      "enum": ["found_sufficient", "iteration_limit", "diminishing_returns", "time_limit", "token_budget"],
+                      "description": "Why research terminated"
+                    },
+                    "gaps": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Areas not covered within boundaries"
+                    }
+                  },
+                  "required": ["termination_reason"]
+                },
+                "iteration_support": {
+                  "type": "object",
+                  "description": "Support for orchestrator-driven iterative research workflows",
+                  "properties": {
+                    "open_questions": {
+                      "type": "array",
+                      "description": "Questions about codebase that remain unanswered, triggering potential follow-up",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "question": {
+                            "type": "string",
+                            "description": "Specific unanswered question about code patterns or architecture"
+                          },
+                          "context": {
+                            "type": "string",
+                            "description": "What was found and why the question remains"
+                          },
+                          "priority": {
+                            "type": "string",
+                            "enum": ["high", "medium", "low"],
+                            "description": "Importance for understanding the codebase"
+                          },
+                          "suggested_approach": {
+                            "type": "string",
+                            "description": "How to research this (e.g., 'researcher-web for design pattern docs')"
+                          }
+                        },
+                        "required": ["question", "context", "priority"]
+                      }
+                    },
+                    "confidence_breakdown": {
+                      "type": "object",
+                      "description": "Detailed confidence analysis for iteration decisions",
+                      "properties": {
+                        "overall_confidence": {
+                          "type": "number",
+                          "minimum": 0.0,
+                          "maximum": 1.0,
+                          "description": "Overall confidence in code analysis findings"
+                        },
+                        "confidence_factors": {
+                          "type": "object",
+                          "properties": {
+                            "code_coverage": {
+                              "type": "number",
+                              "minimum": 0.0,
+                              "maximum": 1.0,
+                              "description": "How much of relevant code was analyzed"
+                            },
+                            "pattern_clarity": {
+                              "type": "number",
+                              "minimum": 0.0,
+                              "maximum": 1.0,
+                              "description": "How clear the patterns are"
+                            },
+                            "documentation_quality": {
+                              "type": "number",
+                              "minimum": 0.0,
+                              "maximum": 1.0,
+                              "description": "Quality of inline docs/comments"
+                            }
+                          }
+                        },
+                        "low_confidence_rationale": {
+                          "type": "array",
+                          "description": "Reasons for confidence below 0.85 threshold",
+                          "items": { "type": "string" }
+                        },
+                        "confidence_improvement_actions": {
+                          "type": "array",
+                          "description": "Specific steps to increase confidence in code understanding",
+                          "items": { "type": "string" }
+                        }
+                      },
+                      "required": ["overall_confidence"]
+                    }
+                  }
+                }
+              },
+              "required": ["findings", "compression_stats", "research_boundaries"]
+            }
+          },
+          "required": ["status", "agent", "agent_specific_output"]
+        },
+        {
+          "title": "Failure Output",
+          "properties": {
+            "status": { "const": "FAILURE" },
+            "agent": { "const": "researcher-codebase" },
+            "failure_details": {
+              "type": "object",
+              "properties": {
+                "failure_type": {
+                  "type": "string",
+                  "enum": ["files_not_found", "pattern_not_found", "scope_too_broad", "validation_error", "timeout"],
+                  "description": "Primary type of failure"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Specific reasons why research failed"
+                },
+                "research_attempted": {
+                  "type": "object",
+                  "description": "What was attempted during research",
+                  "properties": {
+                    "glob_patterns": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Glob patterns used"
+                    },
+                    "grep_queries": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Grep patterns searched"
+                    },
+                    "files_read": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Files that were read"
+                    }
+                  }
+                },
+                "partial_results": {
+                  "type": "object",
+                  "description": "Any partial findings despite failure",
+                  "properties": {
+                    "files_found": { "type": "integer" },
+                    "partial_insights": {
+                      "type": "array",
+                      "items": { "type": "string" }
+                    }
+                  }
+                },
+                "recovery_suggestions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "approach": { "type": "string" },
+                      "rationale": { "type": "string" }
+                    },
+                    "required": ["approach", "rationale"]
+                  }
+                }
+              },
+              "required": ["failure_type", "reasons"]
+            }
+          },
+          "required": ["status", "agent", "failure_details"]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,405 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Researcher Lead Agent Schema",
+  "description": "Schema for researcher-lead orchestrator agent outputs (extends base-agent.schema.json two-state model)",
+  "version": "2.0.0",
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "object",
+      "description": "Research orchestration task input",
+      "properties": {
+        "context": {
+          "type": "string",
+          "description": "Research objective and delegation strategy"
+        },
+        "research_strategy": {
+          "enum": ["depth_first", "breadth_first"],
+          "description": "Research approach classification"
+        },
+        "worker_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Number of workers to delegate to"
+        },
+        "execution_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp from orchestrator (mandatory)"
+        },
+        "iteration_context": {
+          "type": "object",
+          "description": "Context for follow-up research planning (only present when orchestrator calls for iteration)",
+          "properties": {
+            "is_follow_up": {
+              "type": "boolean",
+              "description": "True when this is a follow-up planning call"
+            },
+            "initial_plan_id": {
+              "type": "string",
+              "description": "Reference to original research plan ID"
+            },
+            "round_number": {
+              "type": "integer",
+              "minimum": 2,
+              "description": "Which iteration round (2, 3, etc.)"
+            },
+            "gaps_summary": {
+              "type": "array",
+              "description": "Gaps detected by orchestrator from worker results",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "gap_type": {
+                    "enum": ["unanswered_question", "low_confidence"],
+                    "description": "Type of gap identified"
+                  },
+                  "worker_id": {
+                    "type": "string",
+                    "description": "Worker that reported this gap"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Brief description of the gap"
+                  },
+                  "details": {
+                    "type": "string",
+                    "description": "Additional context about the gap"
+                  }
+                },
+                "required": ["gap_type", "worker_id", "description"]
+              }
+            }
+          },
+          "required": ["is_follow_up", "round_number", "gaps_summary"]
+        }
+      },
+      "required": ["context", "execution_timestamp"]
+    },
+    "output": {
+      "type": "object",
+      "oneOf": [
+        {
+          "title": "Success Output",
+          "properties": {
+            "status": { "const": "SUCCESS" },
+            "agent": { "const": "researcher-lead" },
+            "task_id": { "type": "string" },
+            "operation_type": {
+              "enum": ["research_planning", "worker_delegation", "follow_up_planning"],
+              "description": "Type of planning operation performed"
+            },
+            "summary": {
+              "type": "string",
+              "description": "1-3 sentence summary of research plan"
+            },
+            "validation_checklist": {
+              "type": "object",
+              "properties": {
+                "checks_performed": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "List of validation checks performed"
+                },
+                "all_checks_passed": {
+                  "const": true,
+                  "description": "Must be true for SUCCESS status"
+                },
+                "check_details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "check_name": { "type": "string" },
+                      "status": { "const": "passed" },
+                      "evidence": { "type": "string" },
+                      "validation_method": {
+                        "enum": ["delegation_clarity", "worker_allocation", "boundary_validation", "plan_completeness"],
+                        "description": "Research planning validation methods"
+                      }
+                    },
+                    "required": ["check_name", "status", "evidence"]
+                  }
+                }
+              },
+              "required": ["checks_performed", "all_checks_passed", "check_details"]
+            },
+            "agent_specific_output": {
+              "type": "object",
+              "description": "Research planning output",
+              "properties": {
+                "research_plan": {
+                  "type": "object",
+                  "description": "Research delegation plan for orchestrator",
+                  "properties": {
+                    "strategy": {
+                      "enum": ["depth_first", "breadth_first", "targeted_follow_up"],
+                      "description": "Research approach strategy"
+                    },
+                    "complexity": {
+                      "enum": ["simple", "moderate", "complex"],
+                      "description": "Research complexity assessment"
+                    },
+                    "worker_allocation": {
+                      "type": "object",
+                      "properties": {
+                        "researcher_web_count": { "type": "integer", "minimum": 0 },
+                        "researcher_codebase_count": { "type": "integer", "minimum": 0 },
+                        "researcher_library_count": { "type": "integer", "minimum": 0 },
+                        "total_workers": { "type": "integer", "minimum": 1 }
+                      },
+                      "required": ["total_workers"]
+                    },
+                    "delegation_plans": {
+                      "type": "array",
+                      "description": "4-component delegation plans for each worker",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "worker_type": {
+                            "enum": ["researcher-web", "researcher-codebase", "researcher-library", "claude-code", "architecture-review"],
+                            "description": "Type of research worker"
+                          },
+                          "worker_id": {
+                            "type": "string",
+                            "description": "Unique identifier for this worker"
+                          },
+                          "specific_objective": {
+                            "type": "string",
+                            "description": "One clear research goal"
+                          },
+                          "output_format": {
+                            "type": "string",
+                            "description": "What structure worker should return"
+                          },
+                          "tool_guidance": {
+                            "type": "object",
+                            "description": "Tool and source guidance",
+                            "properties": {
+                              "primary": { "type": "string" },
+                              "preferred_sources": {
+                                "type": "array",
+                                "items": { "type": "string" }
+                              },
+                              "search_strategy": { "type": "string" },
+                              "quality_criteria": { "type": "string" },
+                              "tokens": { "type": "integer" },
+                              "topic": { "type": "string" }
+                            }
+                          },
+                          "task_boundaries": {
+                            "type": "object",
+                            "description": "Clear scope definition",
+                            "properties": {
+                              "scope": { "type": "string" },
+                              "exclusions": {
+                                "type": "array",
+                                "items": { "type": "string" }
+                              },
+                              "termination": { "type": "string" }
+                            },
+                            "required": ["scope"]
+                          }
+                        },
+                        "required": ["worker_type", "worker_id", "specific_objective", "output_format", "task_boundaries"]
+                      },
+                      "minItems": 1
+                    },
+                    "execution_guidance": {
+                      "type": "object",
+                      "description": "How Claude Code should execute plan",
+                      "properties": {
+                        "parallel_execution": { "type": "boolean" },
+                        "synthesis_approach": { "type": "string" },
+                        "expected_compression_ratio": { "type": "string" },
+                        "estimated_duration": { "type": "string" }
+                      },
+                      "required": ["parallel_execution", "synthesis_approach"]
+                    }
+                  },
+                  "required": ["strategy", "complexity", "worker_allocation", "delegation_plans", "execution_guidance"]
+                },
+                "research_rationale": {
+                  "type": "string",
+                  "description": "Why this strategy was chosen"
+                },
+                "recommendations": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Execution suggestions for Claude Code"
+                },
+                "follow_up_metadata": {
+                  "type": "object",
+                  "description": "Only present for follow-up planning",
+                  "properties": {
+                    "is_follow_up_plan": {
+                      "type": "boolean",
+                      "description": "True for follow-up plans"
+                    },
+                    "addressing_gaps": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Gaps this follow-up addresses"
+                    },
+                    "targeted_workers": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "worker_type": { "type": "string" },
+                          "addressing_gap": { "type": "string" }
+                        },
+                        "required": ["worker_type", "addressing_gap"]
+                      }
+                    }
+                  },
+                  "required": ["is_follow_up_plan", "addressing_gaps", "targeted_workers"]
+                }
+              },
+              "required": ["research_plan", "research_rationale"]
+            },
+            "sources": {
+              "type": "array",
+              "items": { "type": "string", "format": "uri" },
+              "description": "Sources consulted for planning"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence level in plan quality"
+            },
+            "severity": {
+              "enum": ["Critical", "Major", "Minor"],
+              "description": "Severity level of any identified issues"
+            },
+            "execution_timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 UTC timestamp from orchestrator"
+            }
+          },
+          "required": ["status", "agent", "task_id", "operation_type", "summary", "validation_checklist", "agent_specific_output", "confidence", "severity", "execution_timestamp"],
+          "additionalProperties": false
+        },
+        {
+          "title": "Failure Output",
+          "properties": {
+            "status": { "const": "FAILURE" },
+            "agent": { "const": "researcher-lead" },
+            "task_id": { "type": "string" },
+            "operation_type": {
+              "enum": ["research_planning", "worker_delegation", "follow_up_planning"],
+              "description": "Type of planning operation attempted"
+            },
+            "summary": {
+              "type": "string",
+              "description": "1-3 sentence summary of why planning failed"
+            },
+            "validation_checklist": {
+              "type": "object",
+              "properties": {
+                "checks_performed": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "List of validation checks attempted"
+                },
+                "all_checks_passed": {
+                  "const": false,
+                  "description": "Must be false for FAILURE status"
+                },
+                "failed_checks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "check_name": { "type": "string" },
+                      "status": { "const": "failed" },
+                      "reason": { "type": "string" },
+                      "evidence": { "type": "string" }
+                    },
+                    "required": ["check_name", "status", "reason"]
+                  },
+                  "minItems": 1
+                },
+                "passed_checks": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "check_name": { "type": "string" },
+                      "status": { "const": "passed" },
+                      "evidence": { "type": "string" }
+                    },
+                    "required": ["check_name", "status", "evidence"]
+                  }
+                }
+              },
+              "required": ["checks_performed", "all_checks_passed", "failed_checks"]
+            },
+            "failure_details": {
+              "type": "object",
+              "properties": {
+                "failure_type": {
+                  "enum": ["insufficient_context", "unclear_requirements", "scope_too_broad", "ambiguous_objective"],
+                  "description": "Primary type of planning failure"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Specific reasons why planning failed"
+                },
+                "missing_information": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "What context is needed"
+                },
+                "clarification_questions": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Specific questions for user"
+                },
+                "recovery_suggestions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "approach": { "type": "string" },
+                      "rationale": { "type": "string" }
+                    },
+                    "required": ["approach", "rationale"]
+                  }
+                }
+              },
+              "required": ["failure_type", "reasons"]
+            },
+            "sources": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Sources accessed before failure"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence level in failure analysis"
+            },
+            "severity": {
+              "enum": ["Critical", "Major", "Minor"],
+              "description": "Severity level of the failure"
+            },
+            "execution_timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 UTC timestamp from orchestrator"
+            }
+          },
+          "required": ["status", "agent", "task_id", "operation_type", "summary", "validation_checklist", "failure_details", "confidence", "severity", "execution_timestamp"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": ["input", "output"]
+}

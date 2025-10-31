@@ -1,0 +1,622 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "contingency-planner.schema.json",
+  "version": "1.0.0",
+  "title": "Contingency Planner Agent Schema",
+  "description": "Schema for contingency-planner agent performing failure mode analysis, fallback strategy generation, and adaptive retry planning for OODA DECIDE phase",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "./base-agent.schema.json"
+    }
+  ],
+  "properties": {
+    "input": {
+      "type": "object",
+      "description": "Input schema for contingency planning operations",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "description": "Unique task identifier from orchestrator"
+        },
+        "execution_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp from orchestrator (mandatory)"
+        },
+        "hypotheses": {
+          "type": "array",
+          "description": "Solution hypotheses from hypothesis-former agent",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hypothesis_id": {
+                "type": "string",
+                "description": "Unique identifier for hypothesis"
+              },
+              "approach": {
+                "type": "string",
+                "description": "Solution approach description"
+              },
+              "dcs_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "DCS score for this hypothesis"
+              },
+              "agents_required": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Agents needed for execution"
+              },
+              "complexity": {
+                "type": "string",
+                "enum": ["low", "medium", "high"],
+                "description": "Complexity level of approach"
+              }
+            },
+            "required": ["hypothesis_id", "approach", "agents_required"]
+          },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "context_quality": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Context quality score from context-readiness-assessor"
+        },
+        "task_context": {
+          "type": "object",
+          "description": "Additional task context for failure mode analysis",
+          "properties": {
+            "user_request": {
+              "type": "string",
+              "description": "Original user request"
+            },
+            "domain": {
+              "type": "string",
+              "description": "Domain scope (e.g., .claude/**, packages/**, docs/**)"
+            },
+            "constraints": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Known constraints or limitations"
+            }
+          }
+        }
+      },
+      "required": ["task_id", "execution_timestamp", "hypotheses"]
+    },
+    "output": {
+      "type": "object",
+      "oneOf": [
+        {
+          "title": "Success Output",
+          "properties": {
+            "status": { "const": "SUCCESS" },
+            "agent": { "const": "contingency-planner" },
+            "task_id": { "type": "string" },
+            "operation_type": { "const": "generate_contingencies" },
+            "execution_timestamp": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "summary": {
+              "type": "string",
+              "description": "1-3 sentence summary of contingency planning results"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence in contingency plan completeness"
+            },
+            "agent_specific_output": {
+              "type": "object",
+              "description": "Contingency-planner specific output structure",
+              "properties": {
+                "failure_modes_identified": {
+                  "type": "array",
+                  "description": "Potential failure scenarios per hypothesis",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "failure_id": {
+                        "type": "string",
+                        "description": "Unique failure mode identifier"
+                      },
+                      "hypothesis_id": {
+                        "type": "string",
+                        "description": "Which hypothesis this failure mode applies to"
+                      },
+                      "failure_type": {
+                        "type": "string",
+                        "enum": [
+                          "agent_timeout",
+                          "schema_validation_fail",
+                          "resource_exhaustion",
+                          "boundary_violation",
+                          "dependency_failure",
+                          "tool_error",
+                          "context_insufficient",
+                          "rate_limit_exceeded",
+                          "permission_denied",
+                          "data_corruption"
+                        ],
+                        "description": "Category of failure"
+                      },
+                      "likelihood": {
+                        "type": "string",
+                        "enum": ["low", "medium", "high"],
+                        "description": "Probability of failure occurring"
+                      },
+                      "impact": {
+                        "type": "string",
+                        "enum": ["low", "medium", "high"],
+                        "description": "Severity of impact if failure occurs"
+                      },
+                      "risk_score": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Combined risk score (likelihood × impact normalized)"
+                      },
+                      "detection_method": {
+                        "type": "string",
+                        "description": "How this failure will be detected"
+                      },
+                      "affected_agents": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Agents that could fail in this mode"
+                      }
+                    },
+                    "required": [
+                      "failure_id",
+                      "hypothesis_id",
+                      "failure_type",
+                      "likelihood",
+                      "impact",
+                      "risk_score",
+                      "detection_method"
+                    ]
+                  },
+                  "minItems": 1
+                },
+                "fallback_strategies": {
+                  "type": "array",
+                  "description": "Alternative approaches when primary hypothesis fails",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "strategy_id": {
+                        "type": "string",
+                        "description": "Unique strategy identifier"
+                      },
+                      "trigger_condition": {
+                        "type": "string",
+                        "description": "Condition that triggers this fallback"
+                      },
+                      "triggering_failures": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Failure IDs that trigger this strategy"
+                      },
+                      "fallback_approach": {
+                        "type": "string",
+                        "description": "Alternative approach to try"
+                      },
+                      "fallback_hypothesis_id": {
+                        "type": "string",
+                        "description": "Alternative hypothesis to execute (if applicable)"
+                      },
+                      "fallback_agents": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Agents to use in fallback approach"
+                      },
+                      "expected_success_rate": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Estimated probability of fallback success"
+                      },
+                      "resource_requirements": {
+                        "type": "object",
+                        "properties": {
+                          "estimated_time": {
+                            "type": "string",
+                            "description": "Estimated execution time"
+                          },
+                          "estimated_tokens": {
+                            "type": "string",
+                            "description": "Estimated token cost"
+                          },
+                          "agent_count": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Number of agents required"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "strategy_id",
+                      "trigger_condition",
+                      "triggering_failures",
+                      "fallback_approach",
+                      "fallback_agents"
+                    ]
+                  },
+                  "minItems": 1
+                },
+                "retry_plans": {
+                  "type": "array",
+                  "description": "Retry logic with max attempts and backoff strategy",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "plan_id": {
+                        "type": "string",
+                        "description": "Unique retry plan identifier"
+                      },
+                      "applies_to_failures": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Failure IDs this retry plan addresses"
+                      },
+                      "max_attempts": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5,
+                        "description": "Maximum retry attempts before escalation"
+                      },
+                      "backoff_strategy": {
+                        "type": "string",
+                        "enum": ["none", "linear", "exponential", "fibonacci"],
+                        "description": "Delay strategy between retries"
+                      },
+                      "backoff_intervals": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "attempt": { "type": "integer", "minimum": 1 },
+                            "delay_seconds": { "type": "number", "minimum": 0 }
+                          }
+                        },
+                        "description": "Specific delay intervals for each attempt"
+                      },
+                      "retry_conditions": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Conditions that must be true to retry"
+                      },
+                      "abort_conditions": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Conditions that trigger immediate abort"
+                      },
+                      "escalation_trigger": {
+                        "type": "string",
+                        "description": "Condition requiring human intervention"
+                      },
+                      "escalation_path": {
+                        "type": "string",
+                        "description": "How to escalate if max attempts exceeded"
+                      }
+                    },
+                    "required": [
+                      "plan_id",
+                      "applies_to_failures",
+                      "max_attempts",
+                      "backoff_strategy",
+                      "escalation_path"
+                    ]
+                  },
+                  "minItems": 1
+                },
+                "circuit_breakers": {
+                  "type": "array",
+                  "description": "Hard limits and emergency stop conditions",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "breaker_id": {
+                        "type": "string",
+                        "description": "Unique circuit breaker identifier"
+                      },
+                      "condition": {
+                        "type": "string",
+                        "description": "Condition that trips the breaker"
+                      },
+                      "threshold": {
+                        "type": "object",
+                        "description": "Threshold values for breaker activation",
+                        "properties": {
+                          "metric": {
+                            "type": "string",
+                            "enum": [
+                              "consecutive_failures",
+                              "total_time_elapsed",
+                              "token_budget_exceeded",
+                              "agent_count_exceeded",
+                              "iteration_limit_reached"
+                            ]
+                          },
+                          "value": {
+                            "type": ["number", "string"],
+                            "description": "Threshold value (number or duration)"
+                          }
+                        },
+                        "required": ["metric", "value"]
+                      },
+                      "action": {
+                        "type": "string",
+                        "enum": ["abort", "escalate", "simplify", "degrade"],
+                        "description": "Action to take when breaker trips"
+                      },
+                      "action_details": {
+                        "type": "string",
+                        "description": "Specific details of action to take"
+                      },
+                      "reset_condition": {
+                        "type": "string",
+                        "description": "How/when to reset the breaker"
+                      }
+                    },
+                    "required": ["breaker_id", "condition", "threshold", "action"]
+                  }
+                },
+                "risk_assessment": {
+                  "type": "object",
+                  "description": "Overall risk analysis and mitigation summary",
+                  "properties": {
+                    "overall_risk_score": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Weighted average of all failure risks"
+                    },
+                    "risk_distribution": {
+                      "type": "object",
+                      "properties": {
+                        "high_risk_failures": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Count of high-risk failure modes"
+                        },
+                        "medium_risk_failures": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Count of medium-risk failure modes"
+                        },
+                        "low_risk_failures": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Count of low-risk failure modes"
+                        }
+                      },
+                      "required": [
+                        "high_risk_failures",
+                        "medium_risk_failures",
+                        "low_risk_failures"
+                      ]
+                    },
+                    "mitigation_coverage": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Percentage of failure modes with mitigation strategies"
+                    },
+                    "critical_failure_modes": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Failure IDs requiring immediate attention"
+                    },
+                    "recommended_hypothesis": {
+                      "type": "string",
+                      "description": "Hypothesis ID with lowest risk profile"
+                    }
+                  },
+                  "required": [
+                    "overall_risk_score",
+                    "risk_distribution",
+                    "mitigation_coverage"
+                  ]
+                },
+                "escalation_triggers": {
+                  "type": "array",
+                  "description": "Conditions requiring human intervention",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "trigger_id": {
+                        "type": "string",
+                        "description": "Unique trigger identifier"
+                      },
+                      "condition": {
+                        "type": "string",
+                        "description": "Condition that triggers escalation"
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": ["warning", "critical", "blocker"],
+                        "description": "Severity level of escalation"
+                      },
+                      "escalation_message": {
+                        "type": "string",
+                        "description": "Message to present to user"
+                      },
+                      "recommended_action": {
+                        "type": "string",
+                        "description": "Suggested action for user to take"
+                      },
+                      "context_to_preserve": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "description": "Context keys to save for resumption"
+                      }
+                    },
+                    "required": [
+                      "trigger_id",
+                      "condition",
+                      "severity",
+                      "escalation_message",
+                      "recommended_action"
+                    ]
+                  }
+                },
+                "execution_plan": {
+                  "type": "object",
+                  "description": "Recommended execution sequence with contingencies",
+                  "properties": {
+                    "primary_path": {
+                      "type": "string",
+                      "description": "Primary hypothesis to execute"
+                    },
+                    "checkpoint_strategy": {
+                      "type": "string",
+                      "description": "When/how to create execution checkpoints"
+                    },
+                    "rollback_enabled": {
+                      "type": "boolean",
+                      "description": "Whether rollback is available"
+                    },
+                    "estimated_success_probability": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Overall probability of successful execution"
+                    }
+                  },
+                  "required": ["primary_path", "estimated_success_probability"]
+                }
+              },
+              "required": [
+                "failure_modes_identified",
+                "fallback_strategies",
+                "retry_plans",
+                "risk_assessment",
+                "escalation_triggers",
+                "execution_plan"
+              ]
+            },
+            "sources": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Sources consulted for failure mode analysis"
+            }
+          },
+          "required": [
+            "status",
+            "agent",
+            "task_id",
+            "operation_type",
+            "execution_timestamp",
+            "summary",
+            "confidence",
+            "agent_specific_output",
+            "sources"
+          ]
+        },
+        {
+          "title": "Failure Output",
+          "properties": {
+            "status": { "const": "FAILURE" },
+            "agent": { "const": "contingency-planner" },
+            "task_id": { "type": "string" },
+            "operation_type": { "const": "generate_contingencies" },
+            "execution_timestamp": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "summary": {
+              "type": "string",
+              "description": "1-3 sentence summary of why contingency planning failed"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence in failure diagnosis"
+            },
+            "failure_details": {
+              "type": "object",
+              "description": "Contingency-planner specific failure information",
+              "properties": {
+                "failure_type": {
+                  "type": "string",
+                  "enum": [
+                    "insufficient_input",
+                    "hypothesis_analysis_failed",
+                    "risk_assessment_failed",
+                    "strategy_generation_failed",
+                    "schema_violation",
+                    "timeout"
+                  ],
+                  "description": "Primary type of failure"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Specific reasons why contingency planning failed"
+                },
+                "partial_results": {
+                  "type": "object",
+                  "description": "Partial contingency analysis if available",
+                  "properties": {
+                    "failure_modes_analyzed": {
+                      "type": "integer",
+                      "description": "Number of failure modes identified before failure"
+                    },
+                    "strategies_generated": {
+                      "type": "integer",
+                      "description": "Number of fallback strategies created before failure"
+                    },
+                    "hypotheses_processed": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Hypothesis IDs successfully analyzed"
+                    }
+                  }
+                },
+                "recovery_suggestions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "approach": {
+                        "type": "string",
+                        "description": "Suggested recovery approach"
+                      },
+                      "rationale": {
+                        "type": "string",
+                        "description": "Why this approach would resolve the failure"
+                      }
+                    },
+                    "required": ["approach", "rationale"]
+                  },
+                  "description": "Suggested approaches to resolve failure"
+                }
+              },
+              "required": ["failure_type", "reasons", "recovery_suggestions"]
+            }
+          },
+          "required": [
+            "status",
+            "agent",
+            "task_id",
+            "operation_type",
+            "execution_timestamp",
+            "summary",
+            "confidence",
+            "failure_details"
+          ]
+        }
+      ]
+    }
+  },
+  "required": ["input", "output"]
+}

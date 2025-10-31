@@ -1,0 +1,358 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "context-optimizer.schema.json",
+  "version": "1.0.0",
+  "title": "Context Optimizer Schema",
+  "description": "Input/output schema for context usage analysis and optimization planning",
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "analysis_type": {
+          "enum": ["targeted", "group", "ecosystem"],
+          "description": "Scope of analysis: targeted (specific agent), group (category), ecosystem (all agents)"
+        },
+        "target_agents": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of specific agents to analyze (for targeted/group modes)"
+        },
+        "analysis_mode": {
+          "enum": ["quick", "standard", "comprehensive"],
+          "description": "Depth of analysis: quick (surface metrics), standard (findings + recommendations), comprehensive (full implementation plan)"
+        },
+        "focus_areas": {
+          "type": "array",
+          "items": {
+            "enum": ["redundancy", "mcp_bloat", "structure", "compression", "tooling", "all"]
+          },
+          "description": "Specific optimization categories to focus on"
+        },
+        "execution_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp from orchestrator"
+        }
+      },
+      "required": ["analysis_type", "analysis_mode", "execution_timestamp"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "oneOf": [
+        {
+          "title": "Context Optimization Success",
+          "properties": {
+            "status": { "const": "SUCCESS" },
+            "agent": { "const": "context-optimizer" },
+            "operation_type": { "const": "analyze_context_usage" },
+            "summary": {
+              "type": "string",
+              "description": "1-3 sentence summary of analysis and optimization potential"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence in analysis and recommendations"
+            },
+            "execution_timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 UTC timestamp from orchestrator"
+            },
+            "agent_specific_output": {
+              "type": "object",
+              "properties": {
+                "analysis_summary": {
+                  "type": "object",
+                  "properties": {
+                    "total_tokens_analyzed": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Total tokens analyzed across all target components"
+                    },
+                    "total_agents": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Number of agents analyzed"
+                    },
+                    "targeted_agents": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "List of agents included in analysis"
+                    },
+                    "targeting_mode": {
+                      "enum": ["all", "specific", "pattern"],
+                      "description": "Mode used for agent selection"
+                    },
+                    "optimization_potential_tokens": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Estimated token savings possible"
+                    },
+                    "optimization_potential_pct": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 100,
+                      "description": "Percentage of current usage that could be saved"
+                    }
+                  },
+                  "required": ["total_tokens_analyzed", "total_agents", "targeted_agents", "targeting_mode", "optimization_potential_tokens", "optimization_potential_pct"]
+                },
+                "findings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "enum": ["redundancy", "mcp_bloat", "structure", "compression", "tooling"],
+                        "description": "Type of optimization opportunity"
+                      },
+                      "severity": {
+                        "enum": ["critical", "high", "medium", "low"],
+                        "description": "Impact severity of this finding"
+                      },
+                      "location": {
+                        "type": "string",
+                        "description": "File path or component where issue exists"
+                      },
+                      "tokens_wasted": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Estimated tokens being wasted"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Clear description of the inefficiency"
+                      },
+                      "impact": {
+                        "type": "string",
+                        "description": "Impact on performance, cost, or developer experience"
+                      }
+                    },
+                    "required": ["category", "severity", "location", "tokens_wasted", "description", "impact"]
+                  },
+                  "description": "List of optimization findings ordered by severity"
+                },
+                "recommendations": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "priority": {
+                        "enum": ["P1", "P2", "P3", "P4"],
+                        "description": "Implementation priority (P1 highest)"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "Short title for recommendation"
+                      },
+                      "savings_tokens": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Estimated token savings from implementing this"
+                      },
+                      "effort_hours": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Estimated implementation effort in hours"
+                      },
+                      "risk_score": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Risk score (0.0 = no risk, 1.0 = high risk)"
+                      },
+                      "roi": {
+                        "type": "number",
+                        "description": "Return on investment (savings_tokens / effort_hours)"
+                      },
+                      "implementation_steps": {
+                        "type": "array",
+                        "items": { "type": "string" },
+                        "minItems": 1,
+                        "description": "Step-by-step implementation guide"
+                      }
+                    },
+                    "required": ["priority", "title", "savings_tokens", "effort_hours", "risk_score", "roi", "implementation_steps"]
+                  },
+                  "description": "Prioritized list of recommendations with ROI analysis"
+                },
+                "metrics": {
+                  "type": "object",
+                  "properties": {
+                    "agent_token_distribution": {
+                      "type": "object",
+                      "description": "Token usage per agent (agent_name: token_count)",
+                      "additionalProperties": { "type": "number" }
+                    },
+                    "redundancy_rate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Percentage of content that is duplicated (0.0 = none, 1.0 = all)"
+                    },
+                    "compression_ratio": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Current compression ratio (input_tokens / output_tokens)"
+                    },
+                    "template_compliance": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Percentage of agents following template standards (0.0-1.0)"
+                    }
+                  },
+                  "required": ["agent_token_distribution", "redundancy_rate", "compression_ratio", "template_compliance"]
+                },
+                "implementation_plan": {
+                  "type": "object",
+                  "properties": {
+                    "phases": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "phase_number": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Sequential phase number"
+                          },
+                          "phase_name": {
+                            "type": "string",
+                            "description": "Descriptive name for this phase"
+                          },
+                          "duration_weeks": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "Estimated duration in weeks"
+                          },
+                          "recommendations_included": {
+                            "type": "array",
+                            "items": { "type": "string" },
+                            "description": "List of recommendation titles in this phase"
+                          },
+                          "total_savings": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "Total token savings for this phase"
+                          },
+                          "dependencies": {
+                            "type": "array",
+                            "items": { "type": "integer" },
+                            "description": "Phase numbers that must complete before this phase"
+                          }
+                        },
+                        "required": ["phase_number", "phase_name", "duration_weeks", "recommendations_included", "total_savings", "dependencies"]
+                      },
+                      "description": "Phased implementation plan ordered by dependencies and ROI"
+                    },
+                    "timeline_weeks": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Total timeline in weeks for all phases"
+                    },
+                    "total_savings_estimate": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Total token savings across all recommendations"
+                    },
+                    "risk_mitigation": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "risk": {
+                            "type": "string",
+                            "description": "Description of potential risk"
+                          },
+                          "mitigation": {
+                            "type": "string",
+                            "description": "Strategy to mitigate this risk"
+                          }
+                        },
+                        "required": ["risk", "mitigation"]
+                      },
+                      "description": "Risk mitigation strategies for implementation"
+                    }
+                  },
+                  "required": ["phases", "timeline_weeks", "total_savings_estimate"]
+                }
+              },
+              "required": ["analysis_summary", "findings", "recommendations", "metrics", "implementation_plan"]
+            }
+          },
+          "required": ["status", "agent", "operation_type", "summary", "confidence", "execution_timestamp", "agent_specific_output"],
+          "additionalProperties": false
+        },
+        {
+          "title": "Context Optimization Failure",
+          "properties": {
+            "status": { "const": "FAILURE" },
+            "agent": { "const": "context-optimizer" },
+            "operation_type": { "const": "analyze_context_usage" },
+            "summary": {
+              "type": "string",
+              "description": "Summary of why optimization analysis failed"
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Confidence in failure diagnosis"
+            },
+            "execution_timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 UTC timestamp from orchestrator"
+            },
+            "failure_details": {
+              "type": "object",
+              "properties": {
+                "failure_type": {
+                  "enum": [
+                    "no_agents_found",
+                    "insufficient_data",
+                    "analysis_error",
+                    "file_access_error",
+                    "invalid_target",
+                    "timeout_exceeded"
+                  ],
+                  "description": "Primary type of failure"
+                },
+                "reasons": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "minItems": 1,
+                  "description": "Specific reasons why analysis failed"
+                },
+                "agents_attempted": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Agents that were attempted but failed to analyze"
+                },
+                "partial_results": {
+                  "type": "object",
+                  "description": "Any partial analysis results obtained before failure"
+                },
+                "recovery_suggestions": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "minItems": 1,
+                  "description": "Suggested approaches to resolve the failure"
+                }
+              },
+              "required": ["failure_type", "reasons", "recovery_suggestions"]
+            }
+          },
+          "required": ["status", "agent", "operation_type", "summary", "confidence", "execution_timestamp", "failure_details"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": ["input", "output"]
+}

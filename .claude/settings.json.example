@@ -1,0 +1,495 @@
+{
+  "_documentation": {
+    "_info": "This file serves as a documented template for .claude/settings.json. Copy this file to .claude/settings.json and customize the values for your environment.",
+    "_usage": "cp .claude/settings.json.example .claude/settings.json",
+    "_note": "The _documentation section should be removed from your actual settings.json file - it exists only in this example template.",
+
+    "env": {
+      "_description": "OpenTelemetry (OTEL) environment variables for distributed tracing, metrics, and logging. These configure how Claude Code sends telemetry data to your observability backend.",
+
+      "CLAUDE_CODE_ENABLE_TELEMETRY": {
+        "purpose": "Master on/off switch for Claude Code telemetry collection (REQUIRED)",
+        "valid_values": ["0", "1"],
+        "default": "0",
+        "usage": [
+          "1 - Enable telemetry collection (development, staging, production)",
+          "0 - Disable telemetry collection (no data sent regardless of other settings)"
+        ],
+        "examples": {
+          "with_monitoring": "1",
+          "without_monitoring": "0"
+        },
+        "notes": [
+          "CRITICAL: Must be set to '1' to enable ANY telemetry collection",
+          "All other OTEL settings are ignored if this is '0' or unset",
+          "Claude Code requires explicit opt-in for telemetry"
+        ]
+      },
+
+      "OTEL_SDK_DISABLED": {
+        "purpose": "Master switch to enable/disable OpenTelemetry SDK entirely",
+        "valid_values": ["true", "false"],
+        "default": "false",
+        "usage": [
+          "false - Enable OTEL collection (production/development with monitoring)",
+          "true - Disable OTEL collection (local development without monitoring, testing, CI/CD)"
+        ],
+        "examples": {
+          "production": "false",
+          "local_dev_with_monitoring": "false",
+          "local_dev_no_monitoring": "true",
+          "ci_cd": "true"
+        }
+      },
+
+      "OTEL_EXPORTER_OTLP_ENDPOINT": {
+        "purpose": "OTLP receiver endpoint URL where telemetry data is sent",
+        "valid_values": "HTTP(S) or gRPC endpoint URL",
+        "default": "http://localhost:4317",
+        "usage": [
+          "Local development: http://localhost:4317 (gRPC) or http://localhost:4318 (HTTP)",
+          "Remote collector: https://otel-collector.your-domain.com:4317",
+          "Cloud vendor: Vendor-specific endpoint (Datadog, Honeycomb, SignOz, etc.)"
+        ],
+        "examples": {
+          "local_grpc": "http://localhost:4317",
+          "local_http": "http://localhost:4318",
+          "docker_compose": "http://otel-collector:4317",
+          "kubernetes": "http://otel-collector.observability.svc.cluster.local:4317",
+          "datadog": "https://trace.agent.datadoghq.com:443",
+          "honeycomb": "https://api.honeycomb.io:443",
+          "signoz": "http://signoz-otel-collector.observability.svc.cluster.local:4317"
+        },
+        "notes": [
+          "Port 4317 is for gRPC protocol",
+          "Port 4318 is for HTTP protocol",
+          "Must match OTEL_EXPORTER_OTLP_PROTOCOL setting",
+          "Ensure firewall allows outbound connections to this endpoint"
+        ]
+      },
+
+      "OTEL_EXPORTER_OTLP_PROTOCOL": {
+        "purpose": "Wire protocol for transmitting telemetry data to OTLP receiver",
+        "valid_values": ["grpc", "http/protobuf"],
+        "default": "grpc",
+        "usage": [
+          "grpc - Binary protocol, better performance, requires port 4317",
+          "http/protobuf - HTTP-based protocol, better firewall compatibility, requires port 4318"
+        ],
+        "examples": {
+          "local_dev": "grpc",
+          "corporate_firewall": "http/protobuf",
+          "kubernetes": "grpc"
+        },
+        "notes": [
+          "gRPC is faster and more efficient but requires HTTP/2 support",
+          "HTTP is more compatible with restrictive network environments",
+          "Must align with OTEL_EXPORTER_OTLP_ENDPOINT port"
+        ]
+      },
+
+      "OTEL_SERVICE_NAME": {
+        "purpose": "Identifies this service in distributed traces and metrics dashboards",
+        "valid_values": "Any descriptive string (kebab-case recommended)",
+        "default": "claude-code-orchestrator",
+        "usage": [
+          "Use descriptive names that identify the component and environment",
+          "Include environment suffix for multi-environment setups",
+          "Keep consistent across deployments for accurate aggregation"
+        ],
+        "examples": {
+          "orchestrator_local": "claude-code-orchestrator",
+          "orchestrator_dev": "claude-code-orchestrator-dev",
+          "orchestrator_staging": "claude-code-orchestrator-staging",
+          "orchestrator_prod": "claude-code-orchestrator-prod",
+          "sub_agent": "claude-code-researcher-web"
+        },
+        "notes": [
+          "This name appears in trace visualizations (Jaeger, Zipkin, etc.)",
+          "Used for service-level aggregation in metrics dashboards",
+          "Should match service naming convention in your infrastructure"
+        ]
+      },
+
+      "OTEL_RESOURCE_ATTRIBUTES": {
+        "purpose": "Key-value pairs for tagging telemetry data with contextual metadata",
+        "valid_values": "Comma-separated key=value pairs",
+        "default": "environment=local,developer=yourname",
+        "usage": [
+          "Add environment, team, region, version, or any custom tags",
+          "Use for filtering and grouping in observability dashboards",
+          "Follow semantic conventions for standard attributes"
+        ],
+        "examples": {
+          "local_dev": "environment=local,developer=john,machine=laptop-mbp",
+          "ci_cd": "environment=ci,pipeline=github-actions,run_id=12345",
+          "staging": "environment=staging,region=us-east-1,version=1.2.3",
+          "production": "environment=production,region=us-west-2,cluster=prod-cluster-1,version=1.2.3"
+        },
+        "semantic_conventions": {
+          "service.name": "Logical name of the service (redundant with OTEL_SERVICE_NAME)",
+          "service.version": "Version of the service (e.g., 1.2.3)",
+          "deployment.environment": "Environment name (local, dev, staging, prod)",
+          "host.name": "Hostname or machine identifier",
+          "k8s.cluster.name": "Kubernetes cluster name",
+          "k8s.namespace.name": "Kubernetes namespace",
+          "k8s.pod.name": "Kubernetes pod name"
+        },
+        "notes": [
+          "Standard OTEL semantic conventions: https://opentelemetry.io/docs/specs/semconv/",
+          "Custom attributes should use namespacing (e.g., 'app.feature=xyz')",
+          "Avoid high-cardinality values (user IDs, timestamps) to prevent metric explosion"
+        ]
+      },
+
+      "OTEL_METRICS_EXPORTER": {
+        "purpose": "Specify which exporter to use for metrics data",
+        "valid_values": ["otlp", "prometheus", "console", "none"],
+        "default": "otlp",
+        "usage": [
+          "otlp - Send metrics to OTLP collector (most common)",
+          "prometheus - Expose metrics endpoint for Prometheus scraping",
+          "console - Print metrics to stdout (debugging only)",
+          "none - Disable metrics export"
+        ],
+        "examples": {
+          "otlp_collector": "otlp",
+          "prometheus_scraping": "prometheus",
+          "local_debugging": "console",
+          "metrics_disabled": "none"
+        },
+        "notes": [
+          "Must match your observability backend's expected format",
+          "otlp exporter works with most vendors (Datadog, Honeycomb, SignOz)",
+          "Prometheus exporter requires different configuration (pull-based vs push-based)"
+        ]
+      },
+
+      "OTEL_TRACES_EXPORTER": {
+        "purpose": "Specify which exporter to use for distributed traces",
+        "valid_values": ["otlp", "jaeger", "zipkin", "console", "none"],
+        "default": "otlp",
+        "usage": [
+          "otlp - Send traces to OTLP collector (most common)",
+          "jaeger - Send directly to Jaeger backend",
+          "zipkin - Send directly to Zipkin backend",
+          "console - Print traces to stdout (debugging only)",
+          "none - Disable trace export"
+        ],
+        "examples": {
+          "otlp_collector": "otlp",
+          "jaeger_direct": "jaeger",
+          "zipkin_direct": "zipkin",
+          "local_debugging": "console",
+          "traces_disabled": "none"
+        },
+        "notes": [
+          "otlp is recommended for vendor-neutral integration",
+          "Jaeger/Zipkin exporters are for direct backend integration (skip collector)",
+          "Console exporter is useful for local debugging and troubleshooting"
+        ]
+      },
+
+      "OTEL_LOGS_EXPORTER": {
+        "purpose": "Specify which exporter to use for structured logs",
+        "valid_values": ["otlp", "console", "none"],
+        "default": "otlp",
+        "usage": [
+          "otlp - Send logs to OTLP collector (most common)",
+          "console - Print logs to stdout (debugging only)",
+          "none - Disable log export"
+        ],
+        "examples": {
+          "otlp_collector": "otlp",
+          "local_debugging": "console",
+          "logs_disabled": "none"
+        },
+        "notes": [
+          "OTEL log specification is still stabilizing",
+          "Many vendors don't yet support OTLP logs (fallback to application logs)",
+          "Console exporter writes to stdout in OTEL JSON format"
+        ]
+      },
+
+      "OTEL_METRIC_EXPORT_INTERVAL": {
+        "purpose": "Time interval (in milliseconds) between metric exports to backend",
+        "valid_values": "Integer milliseconds (recommended: 30000-120000)",
+        "default": "60000",
+        "usage": [
+          "Lower values (30000ms) - More frequent updates, higher network overhead",
+          "Higher values (120000ms) - Less frequent updates, lower network overhead",
+          "Balance between data freshness and resource consumption"
+        ],
+        "examples": {
+          "high_frequency": "30000",
+          "standard": "60000",
+          "low_frequency": "120000",
+          "very_low_frequency": "300000"
+        },
+        "notes": [
+          "Only applies to push-based metric exporters (otlp, not prometheus)",
+          "Lower intervals increase network traffic and backend load",
+          "Higher intervals reduce cost but delay metric visibility",
+          "Consider your monitoring SLA and cost constraints"
+        ]
+      }
+    },
+
+    "complete_scenarios": {
+      "local_development_with_monitoring": {
+        "description": "Local developer running Claude Code with full observability stack (OTEL Collector + Jaeger + Prometheus + Grafana)",
+        "environment_variables": {
+          "OTEL_SDK_DISABLED": "false",
+          "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:4317",
+          "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+          "OTEL_SERVICE_NAME": "claude-code-orchestrator",
+          "OTEL_RESOURCE_ATTRIBUTES": "environment=local,developer=YOUR_NAME",
+          "OTEL_METRICS_EXPORTER": "otlp",
+          "OTEL_TRACES_EXPORTER": "otlp",
+          "OTEL_LOGS_EXPORTER": "otlp",
+          "OTEL_METRIC_EXPORT_INTERVAL": "60000"
+        },
+        "setup_steps": [
+          "1. Start OTEL stack: docker-compose -f k8s/local/docker-compose.yml up -d",
+          "2. Verify services: docker ps (should see otel-collector, jaeger, prometheus, grafana)",
+          "3. Copy this example: cp .claude/settings.json.example .claude/settings.json",
+          "4. Update OTEL_RESOURCE_ATTRIBUTES with your developer name",
+          "5. Restart Claude Code session"
+        ],
+        "verify_urls": [
+          "Jaeger UI: http://localhost:16686",
+          "Prometheus UI: http://localhost:9090",
+          "Grafana UI: http://localhost:3000"
+        ]
+      },
+
+      "local_development_no_monitoring": {
+        "description": "Local developer working offline or without observability stack",
+        "environment_variables": {
+          "OTEL_SDK_DISABLED": "true"
+        },
+        "setup_steps": [
+          "1. Copy this example: cp .claude/settings.json.example .claude/settings.json",
+          "2. Set OTEL_SDK_DISABLED=true",
+          "3. Remove or comment out other OTEL_* variables (they're ignored when SDK is disabled)",
+          "4. Restart Claude Code session"
+        ],
+        "notes": [
+          "No telemetry data is collected or sent",
+          "Zero performance overhead from OTEL SDK",
+          "Use for offline work or when observability isn't needed"
+        ]
+      },
+
+      "ci_cd_environment": {
+        "description": "GitHub Actions or other CI/CD pipeline running tests",
+        "environment_variables": {
+          "OTEL_SDK_DISABLED": "true"
+        },
+        "setup_steps": [
+          "1. Set OTEL_SDK_DISABLED=true in CI environment variables",
+          "2. Or use minimal settings.json with OTEL disabled",
+          "3. Telemetry data not needed for test execution"
+        ],
+        "notes": [
+          "Reduces test execution time by skipping telemetry collection",
+          "Alternative: Enable OTEL with remote collector for CI observability"
+        ]
+      },
+
+      "kubernetes_staging": {
+        "description": "Staging environment in Kubernetes cluster with centralized OTEL collector",
+        "environment_variables": {
+          "OTEL_SDK_DISABLED": "false",
+          "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector.observability.svc.cluster.local:4317",
+          "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+          "OTEL_SERVICE_NAME": "claude-code-orchestrator-staging",
+          "OTEL_RESOURCE_ATTRIBUTES": "environment=staging,cluster=staging-cluster,namespace=claude-code,version=1.2.3",
+          "OTEL_METRICS_EXPORTER": "otlp",
+          "OTEL_TRACES_EXPORTER": "otlp",
+          "OTEL_LOGS_EXPORTER": "otlp",
+          "OTEL_METRIC_EXPORT_INTERVAL": "60000"
+        },
+        "setup_steps": [
+          "1. Deploy OTEL collector to Kubernetes: kubectl apply -f k8s/otel-collector.yaml",
+          "2. Create ConfigMap with these settings: kubectl create configmap claude-code-config --from-file=settings.json",
+          "3. Mount ConfigMap in pod spec: volumeMounts section",
+          "4. Set environment variables from ConfigMap in deployment manifest",
+          "5. Deploy Claude Code workload: kubectl apply -f k8s/claude-code-deployment.yaml"
+        ],
+        "notes": [
+          "Use Kubernetes service discovery for collector endpoint",
+          "Include k8s resource attributes (cluster, namespace, pod) for better correlation",
+          "Consider using k8s secrets for sensitive OTEL configuration"
+        ]
+      },
+
+      "production_cloud_vendor": {
+        "description": "Production environment sending telemetry directly to cloud vendor (Datadog, Honeycomb, SignOz)",
+        "environment_variables": {
+          "OTEL_SDK_DISABLED": "false",
+          "OTEL_EXPORTER_OTLP_ENDPOINT": "https://YOUR_VENDOR_ENDPOINT:443",
+          "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+          "OTEL_SERVICE_NAME": "claude-code-orchestrator-prod",
+          "OTEL_RESOURCE_ATTRIBUTES": "environment=production,region=us-west-2,version=1.2.3",
+          "OTEL_METRICS_EXPORTER": "otlp",
+          "OTEL_TRACES_EXPORTER": "otlp",
+          "OTEL_LOGS_EXPORTER": "otlp",
+          "OTEL_METRIC_EXPORT_INTERVAL": "120000"
+        },
+        "setup_steps": [
+          "1. Sign up for cloud observability vendor (Datadog, Honeycomb, SignOz, etc.)",
+          "2. Obtain API key and OTLP endpoint from vendor documentation",
+          "3. Set OTEL_EXPORTER_OTLP_ENDPOINT to vendor-specific URL",
+          "4. Add API key to OTEL_EXPORTER_OTLP_HEADERS (vendor-specific header name)",
+          "5. Use longer export intervals (120000ms) to reduce costs",
+          "6. Store API keys in secrets manager (never commit to git)"
+        ],
+        "vendor_examples": {
+          "datadog": {
+            "endpoint": "https://trace.agent.datadoghq.com:443",
+            "headers": "DD-API-KEY=<your-api-key>",
+            "docs": "https://docs.datadoghq.com/tracing/trace_collection/open_standards/otlp_ingest_in_the_agent/"
+          },
+          "honeycomb": {
+            "endpoint": "https://api.honeycomb.io:443",
+            "headers": "x-honeycomb-team=<your-api-key>",
+            "docs": "https://docs.honeycomb.io/send-data/opentelemetry/collector/"
+          },
+          "signoz": {
+            "endpoint": "https://ingest.signoz.io:443",
+            "headers": "signoz-access-token=<your-token>",
+            "docs": "https://signoz.io/docs/instrumentation/overview/"
+          }
+        },
+        "notes": [
+          "Never hardcode API keys in settings.json - use environment variables or secrets",
+          "Example: OTEL_EXPORTER_OTLP_HEADERS=${OTEL_API_KEY_SECRET}",
+          "Use longer export intervals in production to reduce costs",
+          "Monitor your observability vendor bill - costs scale with data volume"
+        ]
+      }
+    },
+
+    "troubleshooting": {
+      "no_telemetry_data": [
+        "1. Check OTEL_SDK_DISABLED is set to 'false'",
+        "2. Verify OTEL_EXPORTER_OTLP_ENDPOINT is reachable (telnet or curl test)",
+        "3. Check protocol matches endpoint port (grpc:4317, http:4318)",
+        "4. Review Claude Code logs for OTEL errors",
+        "5. Test with console exporter first: OTEL_TRACES_EXPORTER=console"
+      ],
+      "connection_refused": [
+        "1. Verify OTEL collector is running: docker ps or kubectl get pods",
+        "2. Check firewall allows outbound connections to OTEL endpoint",
+        "3. Ensure correct port in endpoint URL (4317 for grpc, 4318 for http)",
+        "4. Test endpoint with curl or telnet",
+        "5. Check network connectivity (VPN, corporate firewall, etc.)"
+      ],
+      "high_overhead": [
+        "1. Increase OTEL_METRIC_EXPORT_INTERVAL (reduce export frequency)",
+        "2. Disable unused signal types (set exporter to 'none')",
+        "3. Add sampling configuration (not yet in this template)",
+        "4. Batch multiple operations before exporting",
+        "5. Consider async exporter configuration (not yet in this template)"
+      ],
+      "missing_spans": [
+        "1. Check trace sampling configuration (100% sampling in dev)",
+        "2. Verify parent span context is propagated correctly",
+        "3. Review span creation logic in application code",
+        "4. Ensure trace exporter is 'otlp' not 'none'",
+        "5. Check backend trace retention settings"
+      ]
+    },
+
+    "security_considerations": {
+      "api_keys": "NEVER commit API keys to git. Use environment variables or secrets managers.",
+      "endpoints": "Use HTTPS endpoints in production to encrypt telemetry data in transit.",
+      "data_sensitivity": "Review telemetry data for PII/sensitive information before exporting to external vendors.",
+      "network_segmentation": "Ensure OTEL collector has appropriate network access controls.",
+      "authentication": "Use mutual TLS or API key authentication for production OTLP endpoints."
+    },
+
+    "references": {
+      "otel_docs": "https://opentelemetry.io/docs/",
+      "otel_spec": "https://opentelemetry.io/docs/specs/otel/",
+      "otel_collector": "https://opentelemetry.io/docs/collector/",
+      "otel_python": "https://opentelemetry.io/docs/languages/python/",
+      "semantic_conventions": "https://opentelemetry.io/docs/specs/semconv/",
+      "jaeger": "https://www.jaegertracing.io/docs/",
+      "prometheus": "https://prometheus.io/docs/",
+      "grafana": "https://grafana.com/docs/"
+    }
+  },
+
+  "_template_config": {
+    "_instruction": "Copy the configuration below to your .claude/settings.json and customize the values. Remove the _documentation and _template_config sections.",
+    "model": "sonnet",
+    "outputStyle": "default",
+    "orchestrator": {
+      "enableStopPoints": true,
+      "stopPointValidation": {
+        "painPointValidation": true,
+        "architecturalCompliance": true,
+        "maturityEnforcement": true,
+        "resourceValidation": true,
+        "progressTracking": true,
+        "testingGateway": true,
+        "implementationIssueDetection": true,
+        "deploymentValidation": true,
+        "strategicOverride": true
+      },
+      "documentPaths": {
+        "painPoints": "docs/00-project/customer-pain-points-*.md",
+        "architecture": "docs/02-architecture/ARCHITECTURE.md",
+        "componentAlmanac": "docs/00-project/COMPONENT_ALMANAC.md",
+        "maturityMatrix": "docs/00-project/maturity-scoring-guide.md"
+      },
+      "validationThresholds": {
+        "confidenceMinimum": 0.7,
+        "testCoverageMinimum": 80,
+        "performanceThreshold": 5000,
+        "complexityMaximum": 10
+      }
+    },
+    "hooks": {
+      "_note": "See existing .claude/settings.json for full hooks configuration"
+    },
+    "permissions": {
+      "_note": "See existing .claude/settings.json for full permissions configuration"
+    },
+    "env": {
+      "_note": "CUSTOMIZE THESE VALUES FOR YOUR ENVIRONMENT - See _documentation section above for detailed explanations",
+
+      "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+      "_CLAUDE_CODE_ENABLE_TELEMETRY_comment": "REQUIRED: Set to '1' to enable telemetry, '0' to disable. Must be '1' for any OTEL data to flow.",
+
+      "OTEL_SDK_DISABLED": "false",
+      "_OTEL_SDK_DISABLED_comment": "Set to 'true' to disable telemetry, 'false' to enable",
+
+      "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:30317",
+      "_OTEL_EXPORTER_OTLP_ENDPOINT_comment": "Local K8s NodePort: http://localhost:30317 (gRPC) or :30318 (HTTP) | Docker: http://otel-collector:4317 | K8s ClusterIP: http://otel-collector.observability.svc.cluster.local:4317",
+
+      "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+      "_OTEL_EXPORTER_OTLP_PROTOCOL_comment": "Use 'grpc' for NodePort 30317, 'http/protobuf' for NodePort 30318",
+
+      "OTEL_SERVICE_NAME": "claude-code-orchestrator",
+      "_OTEL_SERVICE_NAME_comment": "Add environment suffix: -dev, -staging, -prod",
+
+      "OTEL_RESOURCE_ATTRIBUTES": "environment=local,developer=YOUR_NAME",
+      "_OTEL_RESOURCE_ATTRIBUTES_comment": "Add custom tags: environment, developer, region, version, etc.",
+
+      "OTEL_METRICS_EXPORTER": "otlp",
+      "_OTEL_METRICS_EXPORTER_comment": "Options: otlp, prometheus, console, none",
+
+      "OTEL_TRACES_EXPORTER": "otlp",
+      "_OTEL_TRACES_EXPORTER_comment": "Options: otlp, jaeger, zipkin, console, none",
+
+      "OTEL_LOGS_EXPORTER": "otlp",
+      "_OTEL_LOGS_EXPORTER_comment": "Options: otlp, console, none",
+
+      "OTEL_METRIC_EXPORT_INTERVAL": "60000",
+      "_OTEL_METRIC_EXPORT_INTERVAL_comment": "Milliseconds between exports. Lower = more frequent updates, higher network overhead. Recommended: 30000-120000"
+    }
+  }
+}

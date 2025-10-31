@@ -1,0 +1,97 @@
+{
+  "model": "sonnet",
+  "outputStyle": "default",
+  "orchestrator": {
+    "enableStopPoints": true,
+    "documentPaths": {},
+    "validationThresholds": {
+      "confidenceMinimum": 0.7,
+      "testCoverageMinimum": 80,
+      "complexityMaximum": 10
+    }
+  },
+  "hooks": {
+    "SessionStart": [],
+    "PreToolUse": [],
+    "PostToolUse": [],
+    "Stop": []
+  },
+  "permissions": {
+    "allow": [],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(del /f:*)",
+      "Bash(format:*)",
+      "Bash(dd:*)",
+      "Bash(fdisk:*)",
+      "Bash(sudo:*)",
+      "Bash(su:*)",
+      "Bash(chmod 777:*)",
+      "Bash(chmod +x /usr/*)",
+      "Bash(chown:*)",
+      "Bash(mount:*)",
+      "Bash(umount:*)",
+      "Bash(kill -9:*)",
+      "Bash(killall:*)",
+      "Bash(pkill:*)",
+      "Bash(curl -X POST:*)",
+      "Bash(curl -X PUT:*)",
+      "Bash(curl -X DELETE:*)",
+      "Bash(wget --post-data:*)",
+      "Bash(nc:*)",
+      "Bash(netcat:*)",
+      "Bash(apt:*)",
+      "Bash(yum:*)",
+      "Bash(brew install:*)",
+      "Bash(npm install -g:*)",
+      "Bash(docker run:*)",
+      "Bash(docker exec:*)",
+      "Bash(kubectl delete:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(make install:*)",
+      "Bash(./configure --prefix=/usr:*)",
+      "Bash(git checkout:*)",
+      "Bash(git restore:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(git clean -f:*)"
+    ],
+    "defaultMode": "bypassPermissions",
+    "approvalRequired": [
+      "Bash(git push:*)",
+      "Write(pyproject.toml)",
+      "Bash(uv add:*)"
+    ],
+    "additionalDirectories": [
+      "../",
+      "./"
+    ],
+    "stopPointSettings": {
+      "enabled": true,
+      "timeoutSeconds": 300,
+      "maxRetries": 3,
+      "requireHumanApproval": [],
+      "autoApprove": []
+    },
+    "validationSettings": {
+      "enforceTemplates": true,
+      "requireTests": true,
+      "enforceDocumentation": true,
+      "validateCodeStyle": true,
+      "checkComponentAlmanac": true,
+      "trackContext7Usage": true
+    }
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_SDK_DISABLED": "false",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:30317",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_SERVICE_NAME": "claude-code",
+    "OTEL_RESOURCE_ATTRIBUTES": "environment=local,developer=user.name",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_TRACES_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_METRIC_EXPORT_INTERVAL": "60000"
+  }
+}
