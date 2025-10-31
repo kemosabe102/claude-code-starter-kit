@@ -68,72 +68,202 @@ This starter kit provides the **framework**. You build the **domain-specific imp
 
 ---
 
+## 🎨 INFUSE Framework
+
+The **INFUSE Framework** is a structured prompt methodology for creating clear, effective agent definitions and behaviors.
+
+### What is INFUSE?
+
+INFUSE is an acronym representing six core components of well-structured prompts:
+
+- **I**dentity - Who is this agent? What role does it play?
+- **N**avigation - What documentation should it reference? What context does it need?
+- **F**low - How should it think? What's the decision-making process?
+- **U**ser guidance - What outputs does it produce? How does it communicate?
+- **S**ignals - What triggers specific behaviors? What warnings or errors should it handle?
+- **E**nd instructions - What are the final reminders? What should never be forgotten?
+
+### When to Use INFUSE
+
+- **Creating new agents**: Structure your agent definitions with clear identity, navigation paths, and decision flows
+- **Enhancing behavior**: Add signals for edge cases, improve user guidance sections
+- **Debugging agents**: Check if all INFUSE components are present and well-defined
+
+### Framework Benefits
+
+- **Consistency**: All agents follow the same structural pattern
+- **Completeness**: Ensures no critical components are missing
+- **Maintainability**: Easy to locate and update specific behavioral aspects
+- **Onboarding**: New team members understand agent design quickly
+
+**Learn More**: See `.claude/docs/guides/patterns/infuse-framework.md` for complete methodology and examples.
+
+---
+
+## 🔀 Skills, Workflows & Slash Commands
+
+The starter kit supports three different patterns for extending functionality. Choose based on complexity and invocation method:
+
+### Skills
+
+**What**: Complex, multi-step capabilities invoked automatically by Claude Code when semantically matched to user intent.
+
+**Structure**: Directory-based with `SKILL.md` + supporting resources
+```
+.claude/skills/my-skill/
+├── SKILL.md           # Skill definition with INFUSE structure
+├── templates/         # Optional: templates, examples
+└── utils/             # Optional: helper scripts
+```
+
+**When to Use**:
+- Complex multi-agent workflows requiring coordination
+- Domain-specific capabilities needing multiple tools
+- Reusable patterns invoked by semantic intent (not explicit commands)
+- Example: Code review skill, deployment workflow, test generation
+
+**How Claude Code Chooses**: Automatic semantic matching based on skill description and user request.
+
+### Slash Commands
+
+**What**: Simple, user-invoked prompts for quick operations and guidance.
+
+**Structure**: Single `.md` file in `.claude/commands/`
+```
+.claude/commands/my-command.md
+```
+
+**When to Use**:
+- Simple prompt expansion (single instruction set)
+- User needs explicit control over invocation
+- Quick reference or guidance workflows
+- Example: `/create-agent`, `/review-pr`, `/explain-architecture`
+
+**How Invoked**: User types `/command-name` explicitly.
+
+### Workflows (Architectural Pattern)
+
+**What**: Coded logic paths for automated sequences (DAG architecture).
+
+**Note**: Workflows are an architectural pattern, not a built-in framework feature. You implement workflow logic within skills or agents.
+
+**When to Use**:
+- Multi-step automation with conditional branching
+- State management across multiple operations
+- Example: CI/CD pipeline, release process, migration workflow
+
+**Implementation**: Code workflow logic inside a skill's supporting scripts or agent behavior.
+
+### Decision Tree
+
+```
+Need multi-step automation with state?
+├─ Yes → Build a Skill (with workflow logic if needed)
+└─ No → Is it simple prompt expansion?
+    ├─ Yes → Create Slash Command
+    └─ No → Is it model-invoked by intent?
+        ├─ Yes → Create Skill
+        └─ No → Create Slash Command
+```
+
+**Learn More**:
+- Skills: `.claude/docs/guides/claude/agent-skills.md`
+- Slash Commands: `.claude/docs/guides/claude/slash-commands.md`
+- INFUSE: `.claude/docs/guides/patterns/infuse-framework.md`
+
+---
+
 ## 📖 Quick Start
 
 ### 1. Explore the Framework
 
-```bash
-# Read the core orchestration guide
-cat CLAUDE.md
+**Copy and paste this prompt to get a guided tour:**
 
-# Browse the documentation index
-cat .claude/docs/DOC-INDEX.md
+```
+I want to understand the Claude Code Starter Kit framework. Please help me explore:
 
-# Explore available agents
-ls .claude/agents/
+1. The core orchestration guide in CLAUDE.md - explain the key concepts
+2. The documentation index at .claude/docs/DOC-INDEX.md - show me how it's organized
+3. The available framework agents in .claude/agents/ - what each one does
+4. The agent creation guide - how the /create-agent workflow works
 
-# Check agent creation guide
-cat .claude/docs/guides/agents/agent-creation-guide.md
+Give me a high-level overview of each, highlighting what I need to know to get started.
 ```
 
 ### 2. Understand the OODA Loop
 
-The **Observe-Orient-Decide-Act** loop is the core orchestration pattern:
+**Copy and paste this prompt to learn the core orchestration pattern:**
 
-1. **OBSERVE**: What is being asked? (intent-analyzer)
-2. **ORIENT**: What context do I need? (researcher-* agents, context-readiness-assessor)
-3. **DECIDE**: What's my approach? (hypothesis-former, contingency-planner)
-4. **ACT**: Execute the plan (domain agents you create)
+```
+I want to understand the OODA Loop framework used in this starter kit. Please explain:
 
-Read `CLAUDE.md` for the complete OODA framework.
+1. What OODA stands for (Observe, Orient, Decide, Act)
+2. How each phase works in the context of multi-agent orchestration
+3. Which framework agents support each phase:
+   - OBSERVE: intent-analyzer
+   - ORIENT: researcher-* agents, context-readiness-assessor
+   - DECIDE: hypothesis-former, contingency-planner
+   - ACT: domain agents (that I create)
+4. A concrete example of OODA in action for a typical coding request
+
+Reference CLAUDE.md and .claude/docs/guides/patterns/ooda-loop-framework.md to explain this.
+```
 
 ### 3. Create Your First Agent
 
-**Interactive Mode** (Recommended):
-```bash
-/create-agent
+**Copy and paste this prompt to start the interactive agent creation workflow:**
+
+```
+I want to create my first custom agent using /create-agent. Please walk me through:
+
+1. What the interactive workflow will ask me (agent purpose, tools, domain, permissions)
+2. What happens behind the scenes during the 10-15 minute creation process:
+   - Parse phase (2 min)
+   - Research phase (3-5 min)
+   - Generate phase (2-3 min)
+   - Validate phase (2-3 min)
+   - Integrate phase (1 min)
+3. How to use /create-agent in interactive mode vs manual template mode
+4. What I need to know about the INFUSE framework for agent design
+5. Why I need to restart Claude Code after creating the agent
+
+Then help me start the /create-agent command.
 ```
 
-You'll be guided through a Q&A workflow:
-1. **Agent Purpose** - What problem does this agent solve?
-2. **Tool Selection** - Which tools does it need? (Read, Write, Grep, etc.)
-3. **Domain & Permissions** - Where can it operate? What can it modify?
-4. **Quality Standards** - Reasoning approach, output format, validation
+**Alternative - Manual Template Approach:**
 
-**What Happens Behind the Scenes**:
-1. **Parse** (2 min) - Analyzes your inputs and validates requirements
-2. **Research** (3-5 min) - Reviews existing agents, best practices, and patterns
-3. **Generate** (2-3 min) - Creates agent definition with proper structure
-4. **Validate** (2-3 min) - Runs prompt-evaluator for quality assessment
-5. **Integrate** (1 min) - Saves to `.claude/agents/` and updates documentation
+```
+I want to create a custom agent using the manual template approach. Please:
 
-**Total Time**: 10-15 minutes
+1. Show me the agent-definition-input.template.md structure
+2. Explain each section I need to fill out (using INFUSE framework)
+3. Point me to examples of well-designed agents for reference
+4. Guide me through using /create-agent --create-definition after I've filled in the template
 
-**Manual Mode** (Advanced):
-```bash
-# 1. Copy template
-cp .claude/templates/agent-definition-input.template.md my-agent-input.md
-
-# 2. Edit with your specifications
-# (Fill in agent name, purpose, tools, permissions, etc.)
-
-# 3. Generate agent from your template
-/create-agent --create-definition my-agent-input.md
+Reference .claude/docs/guides/agents/agent-creation-guide.md and the INFUSE framework.
 ```
 
-**⚠️ Restart Required**: After creating new agents, restart Claude Code for recognition.
+### 4. Get More Information
 
-### 4. Customize for Your Domain
+**Copy and paste this prompt to understand specific framework features:**
+
+```
+I need help understanding more about the Claude Code Starter Kit. Please help me with:
+
+[Choose ONE or more topics below]
+
+- The 11 framework agents: what each does, when to use them, and how they work together
+- Progressive Disclosure: the 3-tier architecture and how it optimizes token usage
+- Research delegation patterns: when to use researcher-lead vs researcher-codebase vs researcher-web
+- Agent selection confidence scoring: the formula and decision thresholds
+- File operation protocols: Edit tool hierarchy and when to use fallbacks
+- INFUSE framework: creating well-structured agent prompts
+- Skills vs Slash Commands: when to build each type of extension
+
+Reference the relevant documentation in .claude/docs/ and explain with examples.
+```
+
+### 5. Customize for Your Domain
 
 1. **Add project structure** to `CLAUDE.md`
 2. **Create 3-5 core agents** for your domain (code, testing, deployment, etc.)
@@ -159,14 +289,14 @@ claude-code-starter-kit/
 │       ├── guides/
 │       │   ├── agents/           # 11 agent design guides
 │       │   ├── patterns/         # 10 execution patterns
-│       │   ├── quality/          # 6 quality frameworks
+│       │   ├── quality/          # 7 quality frameworks (includes token density evaluation)
 │       │   └── claude/           # 16 platform docs
 │       ├── research/
 │       │   └── prompt-engineering/    # 10 research papers
 │       ├── schemas/              # 16 agent JSON schemas
 │       ├── examples/             # 5 example implementations
 │       └── security/             # Security patterns
-├── CLAUDE.md                     # Core orchestration instructions (347 lines)
+├── CLAUDE.md                     # Core orchestration instructions (~505 lines, token-optimized)
 └── README.md                     # This file
 ```
 
@@ -196,6 +326,39 @@ claude-code-starter-kit/
 - **Architecture patterns**: `.claude/docs/guides/patterns/`
 - **Quality frameworks**: `.claude/docs/guides/quality/`
 - **Multi-agent coordination**: `.claude/docs/orchestrator-workflow.md`
+- **Token density optimization**: `.claude/docs/guides/quality/token-density-evaluation-framework.md`
+
+### Token Density Optimization
+
+The framework includes a comprehensive evaluation methodology for optimizing token usage in prompts and documentation:
+
+**Six-Dimension Evaluation Matrix**:
+1. **Structural Efficiency** - Markdown format, hierarchy, data structures
+2. **Language Efficiency** - Filler words, active voice, constraint statements
+3. **Reference Efficiency** - Base patterns, inheritance, consolidation
+4. **Example Efficiency** - 2-3 max rule, show vs tell
+5. **Progressive Disclosure** - 2-level max depth
+6. **INFUSE Alignment** - 6-component framework compliance
+
+**Automated Tools Included**:
+- Token estimator (character count / 4 for conservative estimate)
+- Filler word detector
+- Duplicate content finder
+- Reference savings calculator
+
+**Target Metrics**:
+- Agent definitions: 700-1,200 tokens
+- Orchestrator instructions: 3,000-4,000 tokens
+- Comprehensive guides: 3,000-8,000 tokens
+- Templates/schemas: 0 tokens (executable resources)
+
+**Typical Optimizations**:
+- Remove filler words: 10-67% reduction per instance
+- Constraint statements over explanations: 20-40% reduction
+- Base pattern extraction: 93% reduction on common content
+- Markdown-KV over tables: 47% reduction
+
+**See**: `.claude/docs/guides/quality/token-density-evaluation-framework.md` for complete methodology with scoring rubrics and automated analysis scripts.
 
 ---
 
