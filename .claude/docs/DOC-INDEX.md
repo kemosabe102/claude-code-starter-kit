@@ -19,7 +19,7 @@
 - [Examples](#-examples) - Templates and samples (7 examples)
 - [Security](#-security) - Security patterns (1 doc)
 
-**Total Documentation**: 89 files
+**Total Documentation**: 97 files (agent-selection-guide restructured into 9 files)
 
 ---
 
@@ -59,7 +59,14 @@ Complete agent lifecycle from design to creation:
 
 ### Agent Design & Standards
 1. **agent-design-best-practices.md** - Prompt engineering, tool selection, patterns
-2. **agent-selection-guide.md** - Domain-first thinking, 7 selection frameworks
+2. **agent-selection-guide.md** - Quick reference, 7 frameworks overview, decision tree (optimized: ~5,000 tokens)
+   - **selection/framework-1-domain-first.md** - Domain boundaries and recognition patterns
+   - **selection/framework-2-work-type.md** - Creation, investigation, improvement work types
+   - **selection/framework-3-expertise.md** - Agent specializations and read-only workers
+   - **selection/framework-4-multi-agent.md** - Sequential, parallel, research-then-act patterns
+   - **selection/framework-5-context-aware.md** - Context quality assessment and triggers
+   - **selection/framework-6-disambiguation.md** - Four disambiguation principles
+   - **selection/framework-7-anti-patterns.md** - Seven anti-patterns with examples
 3. **agent-categorization.md** - Agent type taxonomy (6 categories)
 4. **agent-naming-conventions.md** - Naming standards and patterns
 5. **base-agent-pattern.md** - Agent inheritance pattern (1,150-token template)
@@ -268,6 +275,9 @@ Templates and example implementations:
 5. **roadmap-item-template.md** - Roadmap planning template
 6. **decision-examples.yaml** - Decision framework examples
 7. **sow-examples.yaml** - Statement of Work examples
+
+**Agent Examples** (`.claude/docs/examples/agents/`):
+8. **agent-selection-scenarios.md** - 15 detailed agent selection examples and walkthroughs
 
 **When to use**: Creating specifications, understanding documentation patterns, learning by example.
 
