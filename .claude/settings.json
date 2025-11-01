@@ -56,7 +56,7 @@
       "Bash(git clean -fd:*)",
       "Bash(git clean -f:*)"
     ],
-    "defaultMode": "bypassPermissions",
+    "defaultMode": "requirePermissions",
     "approvalRequired": [
       "Bash(git push:*)",
       "Write(pyproject.toml)",
