@@ -19,7 +19,7 @@
 - [Examples](#-examples) - Templates and samples (7 examples)
 - [Security](#-security) - Security patterns (1 doc)
 
-**Total Documentation**: 84 files
+**Total Documentation**: 89 files
 
 ---
 
@@ -29,11 +29,25 @@
 
 Essential framework documentation auto-loaded at session startup:
 
-1. **orchestrator-workflow.md** - Agent coordination, OODA loop, delegation patterns, maturity tracking
+1. **orchestrator-workflow.md** - Core orchestration patterns, quick reference, workflow execution (70% optimized)
 2. **agent-standards-extended.md** - Comprehensive agent design standards (12 core standards)
 3. **agent-standards-runtime.md** - Runtime behavior and contracts for all agents
 
 **When to use**: Understanding orchestration architecture, agent design principles, system workflow.
+
+### Orchestration Specializations
+
+**Location**: `.claude/docs/guides/orchestration/`
+
+Detailed orchestration patterns (progressive disclosure):
+
+1. **agent-capabilities.md** - Full agent matrix, maturity tracking, capability mapping
+2. **parallel-execution-patterns.md** - Parallel vs sequential rules, performance optimization
+3. **code-reuse-integration.md** - Code reuse workflows, technical debt reduction
+4. **research-coordination.md** - researcher-lead patterns, iterative research workflows
+5. **synthesis-framework.md** - Multi-agent result consolidation, overlap detection
+
+**When to use**: Deep-dive into agent capabilities, parallel execution strategies, research coordination.
 
 ---
 
