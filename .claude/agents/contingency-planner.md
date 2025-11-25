@@ -1,6 +1,6 @@
 ---
 name: contingency-planner
-description: DECIDE phase component - Systematic failure mode analysis for ranked hypotheses. Identifies 3-5 failure modes per hypothesis with probability×impact risk scoring (0.0-1.0), generates 2-3 fallback strategies per mode with agent recommendations, and defines adaptive retry plans (max attempts, exponential backoff, escalation triggers, confidence decay). Transforms hypothesis lists into comprehensive contingency frameworks (~4.5x expansion) for resilient orchestrator execution planning. Read-only analysis (Read, Grep)
+description: DECIDE phase risk analyst for OODA loop. Use when planning complex tasks that need failure mitigation. Identifies 3-5 failure modes per hypothesis with probability×impact scoring. Generates 2-3 fallback strategies per mode with agent recommendations. Defines adaptive retry plans (max attempts, exponential backoff, escalation triggers). Transforms hypotheses into comprehensive contingency frameworks. Read-only analysis for resilient execution planning.
 model: sonnet
 color: purple
 tools: Read, Grep

@@ -1,9 +1,6 @@
 ---
 name: context-optimizer
-description: >
-  Analyzes Claude Code ecosystem context usage (individual agents, groups, or full ecosystem),
-  identifies optimization opportunities, and creates actionable recommendations with ROI analysis.
-  Supports targeted analysis for faster feedback or ecosystem-wide comprehensive reviews.
+description: Context efficiency analyst for .claude/** ecosystem. Use when optimizing token usage across agents or documentation. Analyzes individual agents, groups, or full ecosystem. Identifies optimization opportunities with ROI analysis (token savings, performance impact). Creates actionable recommendations. Supports targeted analysis (faster feedback) or ecosystem-wide reviews (comprehensive). Modifies files to implement optimizations.
 model: sonnet
 color: purple
 tools: Read, Glob, Grep, Write, WebFetch

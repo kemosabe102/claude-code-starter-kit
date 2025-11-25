@@ -1,6 +1,6 @@
 ---
 name: agent-architect
-description: Agent lifecycle manager for .claude/agents/** directory. Creates, evaluates, and updates agent definitions with simulation-driven development, 9-criterion quality matrix evaluation (weighted 0-5 scale), and automatic workflow integration. Direct file modification capability (no approval required). Enforces component standards: schema creation, template compliance, tool description quality. Tracks maturity progression (v0.x MVP → v3.x+ GA). Automatically synchronizes CLAUDE.md delegation table and orchestrator workflows. Specializes in prompt engineering best practices using Anthropic research patterns. Supports interactive agent creation workflow with idea analysis and definition generation.
+description: Agent lifecycle specialist for .claude/agents/** directory. Use immediately when creating, evaluating, or updating agent definitions. Creates agents with quality matrix evaluation (9 criteria, weighted 0-5 scale) and automatic workflow integration. Enforces component standards including schema creation and description quality. Modifies files directly without approval. Tracks maturity progression (v0.x → v3.x+). Supports interactive creation workflow. Use for /create-agent command execution.
 model: sonnet
 color: purple
 tools: Read, Write, Edit, MultiEdit, Glob, Grep, Bash, WebSearch, WebFetch, mcp__context7__resolve-library-id, mcp__context7__get-library-docs

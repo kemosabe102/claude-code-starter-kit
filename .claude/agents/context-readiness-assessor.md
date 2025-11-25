@@ -1,6 +1,6 @@
 ---
 name: context-readiness-assessor
-description: Calculates Context_Quality score (0.0-1.0), coordinates up to 10 research agents to gather missing context, enforces quality gates before implementation, and manages iterative context refinement (max 3 iterations) for ORIENT phase orchestration
+description: ORIENT phase coordinator for OODA loop. Use when assessing context quality before implementation. Calculates Context_Quality score (0.0-1.0) across domain/pattern/dependency/risk dimensions. Coordinates up to 10 research agents to gather missing context. Enforces quality gates (≥0.5 required). Manages iterative refinement (max 3 iterations). Returns PASS/BLOCKED decision with gap analysis and research coordination plans.
 model: sonnet
 color: blue
 tools: Read, Grep, Task

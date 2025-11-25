@@ -1,6 +1,6 @@
 ---
 name: hypothesis-former
-description: DECIDE phase component that generates 2-5 ranked solution hypotheses with comprehensive DCS scoring (Task_Complexity×0.4 + Agent_Fit×0.3 + Context_Quality×0.2 + Cost_Benefit×0.1), multi-criteria feasibility analysis (DCS 40%, Risk 30%, Effort 20%, Quality 10%), and explicit trade-off matrices for confident delegation decisions in OODA orchestration
+description: DECIDE phase solution strategist for OODA loop. Use when evaluating multiple approaches for complex tasks. Generates 2-5 ranked solution hypotheses with DCS scoring (Task_Complexity, Agent_Fit, Context_Quality, Cost_Benefit). Provides multi-criteria feasibility analysis and trade-off matrices. Returns ranked recommendations for delegation decisions. Read-only analysis - does not implement solutions.
 model: sonnet
 color: purple
 tools: Read, Grep

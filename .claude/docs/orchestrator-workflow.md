@@ -28,20 +28,21 @@
 - **Sequential**: `.claude/` directory modifications, dependent workflows, shared state
 - **Multi-agent**: Complex tasks requiring specialized expertise (research → implement → test → review)
 
-### Common Scenarios (Quick Reference)
-- `.claude/agents/**` → agent-architect
-- `.claude/**` (other) → claude-code
-- `docs/**/SPEC.md` + creation → spec-enhancer
-- `docs/**/SPEC.md` + validation → spec-reviewer
-- `docs/**/PLAN.md` + business → plan-enhancer
-- `docs/**/PLAN.md` + technical → architecture-enhancer
-- `packages/**` + "implement" → code-implementer
-- `packages/**` + "debug" → debugger
-- `packages/**` + "refactor" → refactorer
-- `tests/**` + "create tests" → test-runner
-- Research/analysis → researcher-* agents
-- Kubernetes ops → k8s-deployment
-- Git operations → git-github
+### Common Scenarios (Examples)
+
+These are examples of how agents might be selected based on their descriptions. Claude Code automatically matches tasks to agents.
+
+- `.claude/agents/**` - Agent architecture work
+- `.claude/**` (other) - Claude Code framework work
+- `docs/**/SPEC.md` - Specification work
+- `docs/**/PLAN.md` - Planning work
+- `packages/**` - Application code work
+- `tests/**` - Testing work
+- Research/analysis - Information gathering
+- Kubernetes ops - Deployment operations
+- Git operations - Version control
+
+Actual agent selection is automatic based on agent descriptions and task requirements.
 
 **See Complete References**:
 - `guides/orchestration/agent-capabilities.md` - Full agent matrix + maturity
@@ -70,57 +71,80 @@ When delegating to sub-agents:
 
 ### Agent Selection Protocol
 
-**Core Approach**: Framework-based reasoning (80% of cases), DCS calculation for novel scenarios (20%).
+**Core Approach**: Trust agent descriptions for automatic selection. Claude Code matches tasks to agents based on their descriptions.
 
-**Framework-Based Selection** (Most Tasks):
+**How Selection Works**:
 
-1. **Apply Domain-First Thinking** - File path reveals domain
-   - `.claude/agents/**` → agent-architect
-   - `.claude/**` (non-agents) → claude-code
-   - `docs/**/SPEC.md` → spec-enhancer or spec-reviewer
-   - `docs/**/PLAN.md` → plan-enhancer or architecture-enhancer
-   - `packages/**` → Continue to work type recognition
+1. **Agent Descriptions Drive Selection**
+   - Each agent has a description with clear trigger conditions
+   - Claude Code reads these descriptions and matches them to tasks
+   - Well-written descriptions enable accurate automatic selection
 
-2. **Recognize Work Type** - Within domain, what kind of work?
-   - Creation (implement, build) → code-implementer
-   - Investigation (debug, discover why) → debugger or researcher-codebase
-   - Improvement (refactor, optimize) → refactorer
-   - Validation (review, audit) → code-reviewer
+2. **When Creating Agents**
+   - Write clear "Use when..." or "Proactively use for..." triggers
+   - Include specific domain keywords and technologies
+   - Use action-oriented language
+   - Declare the agent's role and expertise explicitly
 
-3. **Apply Disambiguation** - If ambiguous:
-   - Domain ownership (strongest signal)
-   - Closest expertise
-   - Least assumptions
-   - Workload balance
+3. **Multi-Agent Coordination**
+   - Sequential: Dependencies between steps, different expertise needed
+   - Parallel: Independent tasks that can run simultaneously
+   - Research-then-act: Gather context before implementation
+   - Discovery Pattern: Multi-agent ORIENT exploration when context insufficient
 
-4. **Delegate** to selected agent
+4. **Coordination Limits**
+   - Parallel agents: Max 5 simultaneously
+   - Sequential: Coordinate dependencies carefully
+   - File modifications: Coordinate to avoid conflicts
 
-**DCS Calculation** (Complex/Novel Tasks):
-
-1. **Calculate DCS** - Per `confidence-based-delegation-framework.md`:
-   - Task_Complexity (40%): file count, tool calls, expertise, integration
-   - Agent_Fit (30%): domain match, capability alignment, experience
-   - Context_Quality (20%): information completeness, clarity
-   - Cost_Benefit (10%): time savings, quality improvement
-
-2. **Check Multi-Agent Indicators**:
-   - Sequential pipeline: Dependencies between steps, different expertise
-   - Parallel validation: Multiple perspectives, independent reviews
-   - Research-then-act: Context gathering before implementation
-
-3. **Determine Pattern** - Sequential, parallel, or research-then-act
-
-4. **Delegate** - Agent sequence or parallel agents (max 5 simultaneously)
-
-**Anti-Patterns**:
-- ❌ Don't default to code-implementer for unclear tasks
-- ❌ Don't ignore domain boundaries (`.claude/**` → NOT code-implementer)
-- ❌ Don't use keyword matching without context
+**Best Practices**:
+- ✅ Trust automatic agent selection based on descriptions
+- ✅ Write clear, specific task descriptions
+- ✅ Decompose multi-domain tasks into logical steps
+- ✅ Use parallel execution for independent tasks
+- ❌ Don't override automatic selection without good reason
+- ❌ Don't ignore domain boundaries
 - ❌ Don't force single agent across multiple domains
-- ✅ Do respect domain ownership as strongest signal
-- ✅ Do consider work type within domains
-- ✅ Do apply disambiguation when multiple agents fit
-- ✅ Do decompose multi-domain tasks into specialist sequences
+
+---
+
+### Discovery Pattern (ORIENT Phase Exploration)
+
+**When to Use**: Context_Quality <0.7 OR ambiguous agent selection OR security-critical domains
+
+**Pattern**: Spawn 2-3 exploration agents in parallel during ORIENT to gather multi-perspective context before selecting execution agent in DECIDE phase.
+
+**Spawning Strategy** (single message with multiple Task calls):
+
+1. **Always include**: context-readiness-assessor (primary CQ calculator)
+2. **Add domain specialist**: Based on file paths or task domain
+3. **Add researcher**: researcher-codebase (patterns), researcher-web (external), or researcher-library (docs)
+4. **Optional**: hypothesis-former (multiple approach options)
+
+**Example Coordination**:
+```python
+# Single message with 3 parallel Task calls
+Task(agent="context-readiness-assessor",
+     prompt="Assess Context_Quality for OAuth2 API implementation")
+Task(agent="researcher-codebase",
+     prompt="Find existing authentication patterns in codebase")
+Task(agent="researcher-web",
+     prompt="Research OAuth2 best practices for Python APIs")
+```
+
+**CQ Consolidation**:
+- Use weighted averaging: context-readiness-assessor (0.50) + specialists (0.35) + researcher (0.15)
+- Check consensus: Strong (±0.10), Weak (>0.20), Conflict (>0.30)
+- Gate decision: CQ ≥0.85 → PROCEED | CQ <0.85 → Iterate (max 2 rounds)
+
+**After Consolidation**:
+- If CQ ≥0.85: Proceed to DECIDE (select execution agent)
+- If CQ <0.85: Spawn targeted follow-up agents (max 2 rounds total)
+- If 2 rounds exhausted: Escalate to user with consolidated findings
+
+**Cost Management**: +60-120s latency, +100-200k tokens. Reserve for ambiguous/security-critical tasks. Standard agent selection should resolve 70-80% of cases without Discovery Pattern.
+
+**See**: CLAUDE.md Discovery Pattern section for complete workflow, examples, and triggers
 
 ---
 

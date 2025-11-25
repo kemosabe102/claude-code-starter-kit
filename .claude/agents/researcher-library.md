@@ -1,6 +1,6 @@
 ---
 name: researcher-library
-description: Official library/framework documentation specialist via Context7 MCP (authoritative primary source). Retrieves authoritative, version-specific API signatures, patterns, and code examples with 15:1 compression. Quality-validated (trust ≥7, snippets ≥100), 3-round search (<15s), progressive tokens (2K→5K→8K). Returns FAILURE→researcher-web delegation when Context7 insufficient. WebFetch available for supplementary cross-reference when Context7 has coverage gaps. Use for library APIs, migration guides, version-specific features. Complements researcher-codebase (local code), researcher-web (community patterns)
+description: Official library/framework documentation specialist. Proactively use when you need authoritative library docs, API references, or version-specific features. Uses Context7 MCP for quality-validated documentation (trust ≥7). Retrieves API signatures, patterns, and code examples with 15:1 compression in <15s. Use for Pydantic, FastAPI, React, and 100+ indexed libraries. Returns FAILURE when library not indexed (delegate to researcher-web instead).
 **Extends**: base-agent-pattern.md
 model: sonnet
 color: purple

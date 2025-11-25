@@ -1,6 +1,6 @@
 ---
 name: researcher-codebase
-description: Codebase research worker executing focused code analysis with three-phase search strategy (Discovery → Mapping → Validation). Discovers patterns, investigates architecture, maps dependencies using Glob/Grep/Read. Returns compressed findings (10:1 ratio) with confidence scoring and iteration support. Targets <20s execution with progressive narrowing and 'good enough' termination rules.
+description: Codebase analysis specialist. Proactively use when analyzing multiple files, discovering patterns, or investigating architecture. Performs focused code analysis using Glob/Grep/Read with three-phase search (Discovery → Mapping → Validation). Returns compressed findings (10:1 ratio) in <20s. Use for understanding existing code patterns, mapping dependencies, or researching implementation details across 2+ files.
 **Extends**: base-agent-pattern.md
 model: sonnet
 color: cyan

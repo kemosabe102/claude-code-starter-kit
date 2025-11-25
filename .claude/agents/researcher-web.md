@@ -1,6 +1,6 @@
 ---
 name: researcher-web
-description: Security-hardened web research worker executing focused external research with Context7-first strategy, progressive search refinement, source quality scoring (authoritative/supporting/rejected), 10:1+ compression, SSRF prevention (177-domain whitelist), and iterative research support via confidence breakdown. Returns compressed findings in 12-20s. Worker role only (no orchestration).
+description: Web research specialist. Proactively use for external best practices, industry standards, security guidelines (OWASP), or community patterns. Security-hardened with SSRF prevention (177-domain whitelist). Uses Context7-first strategy with progressive search refinement and source quality scoring. Returns compressed findings (10:1+ ratio) in 12-20s. Use when you need authoritative external information, not available in codebase or library docs.
 extends: base-agent-pattern.md
 model: sonnet
 color: green
