@@ -1,7 +1,7 @@
 ---
 name: intent-analyzer
 description: OBSERVE phase request analyzer for OODA loop. Use when user requests contain multiple intents or complex requirements. Decomposes multi-intent requests into structured task graphs with dependency analysis. Identifies explicit and implicit goals, extracts constraints, and maps task relationships. Returns dependency-ordered task breakdown for orchestration. Read-only analysis of user requests.
-model: sonnet
+model: opus
 color: blue
 tools: Read, Grep
 token_count: 3220

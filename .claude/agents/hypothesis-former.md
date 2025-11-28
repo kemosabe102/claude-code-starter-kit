@@ -1,7 +1,7 @@
 ---
 name: hypothesis-former
 description: DECIDE phase solution strategist for OODA loop. Use when evaluating multiple approaches for complex tasks. Generates 2-5 ranked solution hypotheses with DCS scoring (Task_Complexity, Agent_Fit, Context_Quality, Cost_Benefit). Provides multi-criteria feasibility analysis and trade-off matrices. Returns ranked recommendations for delegation decisions. Read-only analysis - does not implement solutions.
-model: sonnet
+model: opus
 color: purple
 tools: Read, Grep
 token_count: 3850

@@ -106,7 +106,7 @@ scope: entire codebase
 ---
 name: kebab-case-agent-name
 description: Specific, focused capability description (max 200 chars)
-model: sonnet|sonnet (based on complexity)
+model: opus|sonnet (based on complexity)
 color: unique-identifier-color
 tools: minimal-required-tool-set
 ---
@@ -158,7 +158,7 @@ tools: minimal-required-tool-set
 **Implementation**:
 ```yaml
 name: content-analyzer
-model: sonnet  # balanced performance
+model: opus  # balanced performance
 tools: [Read, Grep]
 # Avoid: Edit, MultiEdit, Write, Bash, external services
 ```
@@ -173,7 +173,7 @@ tools: [Read, Grep]
 **Implementation**:
 ```yaml
 name: content-enhancer
-model: sonnet
+model: opus
 tools: [Read, Edit]  # Avoid MultiEdit unless >5 simultaneous changes needed
 # Avoid: Write (creation), Bash, external services
 ```
@@ -333,7 +333,7 @@ tools: [Read, Write, Edit, MultiEdit, Bash, WebSearch, WebFetch, Context7]
 **Recommended Optimization** (90% performance improvement expected):
 ```yaml
 name: technical-pm
-model: sonnet  # Keep for strategic thinking
+model: opus  # Keep for strategic thinking
 tools: [Read, Grep]  # Remove 9 tools, keep only review capabilities
 # Result: ~20s startup time (from 5+ minutes)
 ```

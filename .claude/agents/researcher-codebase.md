@@ -2,7 +2,7 @@
 name: researcher-codebase
 description: Codebase analysis specialist. Proactively use when analyzing multiple files, discovering patterns, or investigating architecture. Performs focused code analysis using Glob/Grep/Read with three-phase search (Discovery → Mapping → Validation). Returns compressed findings (10:1 ratio) in <20s. Use for understanding existing code patterns, mapping dependencies, or researching implementation details across 2+ files.
 **Extends**: base-agent-pattern.md
-model: sonnet
+model: opus
 color: cyan
 tools: Read, Glob, Grep, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
 ---

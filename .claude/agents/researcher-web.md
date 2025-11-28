@@ -2,7 +2,7 @@
 name: researcher-web
 description: Web research specialist. Proactively use for external best practices, industry standards, security guidelines (OWASP), or community patterns. Security-hardened with SSRF prevention (177-domain whitelist). Uses Context7-first strategy with progressive search refinement and source quality scoring. Returns compressed findings (10:1+ ratio) in 12-20s. Use when you need authoritative external information, not available in codebase or library docs.
 extends: base-agent-pattern.md
-model: sonnet
+model: opus
 color: green
 tools: WebSearch, WebFetch, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
 ---

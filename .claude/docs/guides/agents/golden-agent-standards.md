@@ -56,7 +56,7 @@ This guide provides concrete examples of excellent agent and schema design based
 name: researcher-codebase
 description: Codebase research worker performing deep code analysis, architecture investigation, and implementation pattern discovery with intelligent compression for researcher-lead.
 **Extends**: base-agent-pattern.md
-model: sonnet
+model: opus
 color: cyan
 tools: Read, Glob, Grep, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
 ---
@@ -903,7 +903,7 @@ tools: Read, Write, Edit, Glob, Grep, WebFetch, mcp__context7__resolve-library-i
 name: descriptive-agent-name  # Use domain prefix (researcher-, feature-, etc.)
 description: One sentence describing agent purpose and capabilities
 **Extends**: base-agent-pattern.md  # Include if using base pattern
-model: sonnet  # sonnet for workers, sonnet for reasoning
+model: opus  # sonnet for workers, sonnet for reasoning
 color: purple  # Visual identifier
 tools: Read, Write, Edit, Glob, Grep  # Comma-separated string (NOT YAML list)
 ---

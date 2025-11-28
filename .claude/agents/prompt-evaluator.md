@@ -1,7 +1,7 @@
 ---
 name: prompt-evaluator
 description: Agent prompt quality analyst. Use when evaluating agent definitions in .claude/agents/**. Analyzes prompts across 4 frameworks (structural/engineering/tokens/testing) with evidence-based recommendations. Detects anti-patterns and quantifies optimization opportunities. Supports single-agent or batch evaluation. Read-only analysis - generates evaluation reports but does not modify agent files. Use for quality assessment before deploying agents.
-model: sonnet
+model: opus
 color: purple
 tools: Read, Grep, Glob
 ---

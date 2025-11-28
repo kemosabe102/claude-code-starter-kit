@@ -424,7 +424,7 @@
 
   "_template_config": {
     "_instruction": "Copy the configuration below to your .claude/settings.json and customize the values. Remove the _documentation and _template_config sections.",
-    "model": "sonnet",
+    "model": "opus",
     "outputStyle": "default",
     "orchestrator": {
       "enableStopPoints": true,

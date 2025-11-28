@@ -1,7 +1,7 @@
 ---
 name: contingency-planner
 description: DECIDE phase risk analyst for OODA loop. Use when planning complex tasks that need failure mitigation. Identifies 3-5 failure modes per hypothesis with probability×impact scoring. Generates 2-3 fallback strategies per mode with agent recommendations. Defines adaptive retry plans (max attempts, exponential backoff, escalation triggers). Transforms hypotheses into comprehensive contingency frameworks. Read-only analysis for resilient execution planning.
-model: sonnet
+model: opus
 color: purple
 tools: Read, Grep
 token_count: 4350

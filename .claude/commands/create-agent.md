@@ -28,7 +28,7 @@ arguments:
     type: enum
     default: standard
 allowed_tools: Read, Write, Edit, Glob, Grep, Task, TodoWrite, WebSearch, WebFetch, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
-model: sonnet
+model: opus
 color: purple
 ---
 

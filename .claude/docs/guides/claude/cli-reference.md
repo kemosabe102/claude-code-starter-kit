@@ -64,7 +64,7 @@ claude --agents '{
     "description": "Expert code reviewer. Use proactively after code changes.",
     "prompt": "You are a senior code reviewer. Focus on code quality, security, and best practices.",
     "tools": ["Read", "Grep", "Glob", "Bash"],
-    "model": "sonnet"
+    "model": "opus"
   },
   "debugger": {
     "description": "Debugging specialist for errors and test failures.",

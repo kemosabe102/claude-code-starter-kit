@@ -2,7 +2,7 @@
 name: researcher-library
 description: Official library/framework documentation specialist. Proactively use when you need authoritative library docs, API references, or version-specific features. Uses Context7 MCP for quality-validated documentation (trust ≥7). Retrieves API signatures, patterns, and code examples with 15:1 compression in <15s. Use for Pydantic, FastAPI, React, and 100+ indexed libraries. Returns FAILURE when library not indexed (delegate to researcher-web instead).
 **Extends**: base-agent-pattern.md
-model: sonnet
+model: opus
 color: purple
 tools: mcp__context7__resolve-library-id, mcp__context7__get-library-docs, WebFetch
 ---

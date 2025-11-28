@@ -441,7 +441,7 @@ Agents add domain-specific validation criteria:
 ---
 name: example-agent
 description: Example agent demonstrating base pattern usage
-model: sonnet
+model: opus
 color: blue
 tools: Read, Grep, Glob
 ---

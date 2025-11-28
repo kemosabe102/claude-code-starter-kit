@@ -36,7 +36,7 @@
 ---
 name: agent-name # Use descriptive, groupable names (e.g., researcher-lead, researcher-web)
 description: Brief description of agent purpose and capabilities - 1-2 sentences max
-model: sonnet|sonnet # sonnet=worker, sonnet=hybrid reasoning
+model: opus|sonnet # sonnet=worker, sonnet=hybrid reasoning
 color: purple|blue|green|yellow|red # Visual identifier
 tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch # Comma-separated string, NOT YAML list
 ---
